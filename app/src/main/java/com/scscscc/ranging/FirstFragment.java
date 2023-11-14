@@ -49,7 +49,6 @@ public class FirstFragment extends Fragment {
         myRecorder = new MyRecorder(theBrain, getContext(), handler);
         myPlayer = new MyPlayer(theBrain, getContext());
         theBrain.myPlayer = myPlayer;
-
         return binding.getRoot();
     }
 
@@ -72,7 +71,7 @@ public class FirstFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 binding.textviewOut0.setText("Started Playing");
-                myPlayer.startPlaying(false,0, 2000);
+                myPlayer.startPlaying(false, 0, 2000);
             }
         });
         binding.buttonEndPlay.setOnClickListener(new View.OnClickListener() {
@@ -120,6 +119,9 @@ public class FirstFragment extends Fragment {
                 NavHostFragment.findNavController(FirstFragment.this)
                         .navigate(R.id.action_FirstFragment_to_SecondFragment);
             }
+        });
+        binding.switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            theBrain.enable = isChecked;
         });
     }
 

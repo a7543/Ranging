@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Switch;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +40,7 @@ public class TheBrain {
     public MyPlayer myPlayer;
     public BluetoothService bluetoothService;
 
+    public boolean enable = false;
 
     private void genChirp(int timeInMillis, float freq1, float freq2) {
 
@@ -65,6 +67,8 @@ public class TheBrain {
     }
 
     public void report(int type, long value) {
+        if(!enable)
+            return;
         if (type == DATA_A0) {
             clear();
             data[DATA_A0] = value;
