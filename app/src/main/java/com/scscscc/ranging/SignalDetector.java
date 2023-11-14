@@ -57,6 +57,7 @@ public class SignalDetector {
 
     // This method is used to get the noise window.
     // In this code, it is assumed that the noise window is found when the cross-correlation value is maximum.
+    // Actual check length = data.length - reference.length - W0 + 1
     private static NoiseWindowInfo getNoiseWindow(double[] original_data, double[] reference) {
         double[] data = Arrays.copyOf(original_data, original_data.length);
         double max = Double.NEGATIVE_INFINITY;

@@ -186,7 +186,7 @@ public class MyRecorder {
                     if (si.status == 0)
                         count += 1;
                     feedback(2, "count: " + count);
-                    pos += bufferSize / 2 - SignalDetector.W0;
+                    pos += bufferSize / 2 - SignalDetector.W0 - TheBrain.chirpBuffer.length + 1;
                 }
             }
         }
