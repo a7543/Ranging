@@ -1,0 +1,210 @@
+package com.scscscc.ranging;
+
+import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
+import android.util.Log;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+public class MyPlayer {
+    private static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_STEREO;
+    private static final int MYCONF_CHANNEL_OUT_CONFIG = AudioFormat.CHANNEL_OUT_MONO;
+    private static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+
+    private static int minBufferSize;
+    private static int bufferSize;
+    private boolean isPlaying;
+    private AudioTrack player;
+    private Thread playingThread;
+
+    private final Context context;
+    private final TheBrain theBrain;
+
+    public MyPlayer(TheBrain theBrain, Context context) {
+        this.theBrain = theBrain;
+        this.context = context;
+        minBufferSize = AudioTrack.getMinBufferSize(
+                TheBrain.MYCONF_SAMPLERATE,
+                MYCONF_CHANNEL_OUT_CONFIG,
+                MYCONF_AUDIO_ENCODING);
+        bufferSize = minBufferSize;
+    }
+
+    public void startPlaying(boolean warmup, int timeInMillis, int freq) {
+        if(isPlaying)
+            return;
+        player = new AudioTrack(
+                AudioManager.STREAM_MUSIC,
+                TheBrain.MYCONF_SAMPLERATE,
+                MYCONF_CHANNEL_OUT_CONFIG,
+                MYCONF_AUDIO_ENCODING,
+                bufferSize,
+                AudioTrack.MODE_STREAM);
+
+        player.play();
+        isPlaying = true;
+        playingThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                if (warmup)
+                    playCosWave(50, 2000);
+                if (timeInMillis >= 0)
+                    playCosWave(timeInMillis, freq);
+                else
+                    playChirp(50);
+
+                isPlaying = false;
+                player.stop();
+                player.release();
+                player = null;
+                playingThread = null;
+            }
+        }, "AudioRecorder Thread");
+
+        playingThread.start();
+    }
+
+    public void stopPlaying() {
+        isPlaying = false;
+    }
+
+    public void beep(boolean isA) {
+        if (isA)
+            theBrain.report(TheBrain.DATA_A0, System.nanoTime());
+        startPlaying(true, -1, 0);
+    }
+//    public void beep(boolean isA) {
+//        int freq;
+//        if (isA)
+//            freq = 3000;
+//        else
+//            freq = 4000;
+//
+//        if (isA)
+//            theBrain.report(TheBrain.DATA_A0, System.nanoTime());
+//        startPlaying(true, 50, freq);
+//    }
+
+
+    private void playChirp(int timeInMillis) {
+        int beepBufferSize = -1;
+        if (timeInMillis > 0)
+            beepBufferSize = TheBrain.MYCONF_SAMPLERATE * 2 * timeInMillis / 1000;
+        boolean beepMode = beepBufferSize != -1;
+        byte[] buffer = new byte[bufferSize];
+        int sampleIdx = 0;
+        while (isPlaying) {
+            try {
+                int playSize;
+                if (beepMode && beepBufferSize < bufferSize) {
+                    playSize = beepBufferSize;
+                } else
+                    playSize = bufferSize;
+                for (int i = 0; i < bufferSize / 2; i++) {
+                    if (i >= playSize / 2) {
+                        buffer[i * 2] = 0;
+                        buffer[i * 2 + 1] = 0;
+                    } else {
+                        sampleIdx += 1;
+                        if (sampleIdx >= TheBrain.chirpBuffer.length)
+                            sampleIdx -= TheBrain.chirpBuffer.length;
+                        double d = TheBrain.chirpBuffer[sampleIdx];
+                        short val = (short) (d * Short.MAX_VALUE);
+                        buffer[i * 2] = (byte) (val & 0x00ff);
+                        buffer[i * 2 + 1] = (byte) ((val & 0xff00) >> 8);
+                    }
+                }
+                player.write(buffer, 0, bufferSize);
+                if (beepMode)
+                    beepBufferSize -= playSize;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (beepBufferSize == 0)
+                break;
+        }
+    }
+
+    private void playCosWave(int timeInMillis, float freq) {
+        int beepBufferSize = -1;
+        if (timeInMillis > 0)
+            beepBufferSize = TheBrain.MYCONF_SAMPLERATE * 2 * timeInMillis / 1000;
+        boolean beepMode = beepBufferSize != -1;
+        byte[] buffer = new byte[bufferSize];
+        int phase = 0;
+        float period = TheBrain.MYCONF_SAMPLERATE / freq;
+        while (isPlaying) {
+            try {
+                int playSize;
+                if (beepMode && beepBufferSize < bufferSize) {
+                    playSize = beepBufferSize;
+                } else
+                    playSize = bufferSize;
+
+                for (int i = 0; i < bufferSize / 2; i++) {
+                    if (i >= playSize / 2) {
+                        buffer[i * 2] = 0;
+                        buffer[i * 2 + 1] = 0;
+                    } else {
+                        phase += 1;
+                        while (phase > period)
+                            phase -= period;
+                        double d = Math.cos(2 * Math.PI * phase / TheBrain.MYCONF_SAMPLERATE * freq);
+                        short val = (short) (d * Short.MAX_VALUE);
+                        buffer[i * 2] = (byte) (val & 0x00ff);
+                        buffer[i * 2 + 1] = (byte) ((val & 0xff00) >> 8);
+                    }
+                }
+
+                player.write(buffer, 0, bufferSize);
+                if (beepMode)
+                    beepBufferSize -= playSize;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (beepBufferSize == 0)
+                break;
+        }
+    }
+
+    private void readAudioDataFromFile() {
+        byte[] data = new byte[bufferSize];
+        String filename = context.getDataDir() + "/test.dat";
+
+        Log.d("scsc", "开始录音地址===== " + filename);
+        FileInputStream is = null;
+        try {
+            is = new FileInputStream(filename);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        int write;
+
+        if (is != null) {
+            while (isPlaying) {
+                try {
+                    write = is.read(data);
+                    if (write == -1) {
+                        isPlaying = false;
+                        break;
+                    }
+                    player.write(data, 0, bufferSize);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}

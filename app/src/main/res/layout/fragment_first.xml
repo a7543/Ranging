@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FirstFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_start_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Play"
+            app:layout_constraintBottom_toTopOf="@id/button_debug1"
+            app:layout_constraintEnd_toStartOf="@id/button_end_play"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button_end_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Play"
+            app:layout_constraintBottom_toTopOf="@id/button_debug1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_start_play"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button_debug1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bluetooth Message Test"
+            app:layout_constraintBottom_toTopOf="@id/button_start_listen"
+            app:layout_constraintEnd_toStartOf="@id/button_debug2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_start_play" />
+
+        <Button
+            android:id="@+id/button_debug2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="beep"
+            app:layout_constraintBottom_toTopOf="@id/button_start_listen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_debug1"
+            app:layout_constraintTop_toBottomOf="@id/button_start_play" />
+
+        <Button
+            android:id="@+id/button_start_listen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Listen"
+            app:layout_constraintBottom_toTopOf="@id/button_bluetooth_server"
+            app:layout_constraintEnd_toStartOf="@id/button_end_listen"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_debug1" />
+
+        <Button
+            android:id="@+id/button_end_listen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Listen"
+            app:layout_constraintBottom_toTopOf="@id/button_bluetooth_server"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_start_listen"
+            app:layout_constraintTop_toBottomOf="@id/button_debug1" />
+
+        <Button
+            android:id="@+id/button_bluetooth_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Server"
+            app:layout_constraintBottom_toTopOf="@id/button_debug1"
+            app:layout_constraintEnd_toStartOf="@id/button_bluetooth_client"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_start_listen" />
+
+        <Button
+            android:id="@+id/button_bluetooth_client"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Client"
+            app:layout_constraintBottom_toTopOf="@id/button_first"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_bluetooth_server"
+            app:layout_constraintTop_toBottomOf="@id/button_start_listen" />
+
+        <Button
+            android:id="@+id/button_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next"
+            app:layout_constraintBottom_toTopOf="@id/textview_out0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_bluetooth_server" />
+
+        <TextView
+            android:id="@+id/textview_out0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="output0 status"
+            app:layout_constraintBottom_toTopOf="@id/textview_out1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_first" />
+
+        <TextView
+            android:id="@+id/textview_out1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="output1 soundinfo"
+            app:layout_constraintBottom_toTopOf="@id/textview_out2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_out0" />
+
+        <TextView
+            android:id="@+id/textview_out2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="output2 isbeep"
+            app:layout_constraintBottom_toTopOf="@id/textview_out3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_out1" />
+
+        <TextView
+            android:id="@+id/textview_out3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="output3 bluetooth"
+            app:layout_constraintBottom_toTopOf="@id/textview_out4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_out2" />
+
+        <TextView
+            android:id="@+id/textview_out4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="output4 distance"
+            app:layout_constraintBottom_toTopOf="@id/textview_out5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_out3" />
+
+        <TextView
+            android:id="@+id/textview_out5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="output5 log\n"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_out4" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
