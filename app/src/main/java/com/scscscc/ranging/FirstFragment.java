@@ -40,7 +40,10 @@ public class FirstFragment extends Fragment {
                 else if (msg.what == 4)
                     binding.textviewOut4.setText(msg.obj.toString());
                 else if (msg.what == 5)
-                    binding.textviewOut5.setText(binding.textviewOut5.getText() + msg.obj.toString() + "\n");
+                    if (msg.arg2 == 1)
+                        binding.textviewOut5.setText(binding.textviewOut5.getText() + msg.obj.toString() + "\n");
+                    else
+                        binding.textviewOut5.setText(msg.obj.toString());
                 super.handleMessage(msg);
             }
         };
@@ -122,6 +125,12 @@ public class FirstFragment extends Fragment {
         });
         binding.switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
             theBrain.enable = isChecked;
+        });
+        binding.buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                theBrain.reset();
+            }
         });
     }
 

@@ -55,11 +55,18 @@ public class TheBrain {
     }
 
 
-    private void feedback(int channel, String txt) {
+    private void feedback(int channel, String txt, boolean append) {
         Message msg = new Message();
         msg.what = channel;
         msg.obj = txt;
+        if (append)
+            msg.arg2 = 1;
         handler.sendMessage(msg);
+    }
+
+    public void reset() {
+        clear();
+        feedback(5, "reset brain", false);
     }
 
     private void clear() {
@@ -67,23 +74,23 @@ public class TheBrain {
     }
 
     public void report(int type, long value) {
-        if(!enable)
+        if (!enable)
             return;
         if (type == DATA_A0) {
             clear();
             data[DATA_A0] = value;
-            feedback(5, "A0: " + value);
+            feedback(5, "A0: " + value, true);
             return;
         } else if (type == DATA_LISTEN) {
             if (data[DATA_A0] != -1) { // A
                 if (data[DATA_A1] == -1) {
                     data[DATA_A1] = value;
-                    feedback(5, "A1: " + value);
+                    feedback(5, "A1: " + value, true);
                 } else if (data[DATA_A3] == -1) {
                     data[DATA_A3] = value;
                     long delta = data[DATA_A3] - data[DATA_A1];
-                    feedback(5, "A3: " + value);
-                    feedback(5, "send deltaa: " + delta);
+                    feedback(5, "A3: " + value, true);
+                    feedback(5, "send deltaa: " + delta, true);
                     bluetoothService.sendMessage(delta);
                 }
             } else { //B
@@ -93,14 +100,14 @@ public class TheBrain {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        feedback(5, "sleep interrupted");
+                        feedback(5, "sleep interrupted", true);
                     }
-                    feedback(5, "B1: " + value);
+                    feedback(5, "B1: " + value, true);
                 } else if (data[DATA_B3] == -1) {
                     data[DATA_B3] = value;
                     long delta = data[DATA_B3] - data[DATA_B1];
-                    feedback(5, "B3: " + value);
-                    feedback(5, "send deltab: " + delta);
+                    feedback(5, "B3: " + value, true);
+                    feedback(5, "send deltab: " + delta, true);
                     bluetoothService.sendMessage(delta);
                 }
             }
@@ -108,10 +115,10 @@ public class TheBrain {
         } else if (type == DATA_DELTA) {
             if (data[DATA_A0] != -1) {
                 data[DATA_DELTA_B] = value;
-                feedback(5, "recv deltab: " + value);
+                feedback(5, "recv deltab: " + value, true);
             } else {
                 data[DATA_DELTA_A] = value;
-                feedback(5, "recv deltaa: " + value);
+                feedback(5, "recv deltaa: " + value, true);
             }
         }
 
@@ -121,8 +128,8 @@ public class TheBrain {
             double ta1 = 1.0 * data[DATA_A1] / MYCONF_SAMPLERATE;
             double tb3_tb1 = 1.0 * data[DATA_DELTA_B] / MYCONF_SAMPLERATE;
             double dist = c / 2 * ((ta3 - ta1) - (tb3_tb1));
-            feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist));
-            feedback(5, "update dist = " + dist);
+            feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist), false);
+            feedback(5, "update dist = " + dist, true);
             clear();
             //myPlayer.beep(true);
         } else if (data[DATA_B1] != -1 && data[DATA_B3] != -1 && data[DATA_DELTA_A] != -1) {
@@ -131,8 +138,8 @@ public class TheBrain {
             double tb1 = 1.0 * data[DATA_B1] / MYCONF_SAMPLERATE;
             double ta3_ta1 = 1.0 * data[DATA_DELTA_A] / MYCONF_SAMPLERATE;
             double dist = c / 2 * ((ta3_ta1) - (tb3 - tb1));
-            feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist));
-            feedback(5, "update dist = " + dist);
+            feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist), false);
+            feedback(5, "update dist = " + dist, true);
             clear();
         }
     }
