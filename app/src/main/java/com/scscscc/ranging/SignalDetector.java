@@ -6,9 +6,9 @@ public class SignalDetector {
 
     private static class NoiseWindowInfo {
         public int maxIndex;
-        public double similarity;
+        public double[] similarity;
 
-        public NoiseWindowInfo(int maxIndex, double similarity) {
+        public NoiseWindowInfo(int maxIndex, double[] similarity) {
             this.maxIndex = maxIndex;
             this.similarity = similarity;
         }
@@ -19,9 +19,9 @@ public class SignalDetector {
         public int status;
         public double confidence;
         public int position;
-        public double similarity;
+        public double[] similarity;
 
-        public SignalInfo(int status, double confidence, int position, double similarity) {
+        public SignalInfo(int status, double confidence, int position, double[] similarity) {
             this.status = status;
             this.confidence = confidence;
             this.position = position;
@@ -34,7 +34,7 @@ public class SignalDetector {
         int N = nwi.maxIndex;
         if (N == -1) {
             //System.out.println("Detection failed: signal energy is too weak or the noise level is high");
-            return new SignalInfo(-1, 0, 0, 0);
+            return new SignalInfo(-1, 0, 0, null);
         }
 
         double L2_S = calculateL2Norm(data, N, N + TheBrain.W0);
@@ -61,7 +61,7 @@ public class SignalDetector {
     private static NoiseWindowInfo getNoiseWindow(double[] original_data, double[] reference) {
         double[] data = Arrays.copyOf(original_data, original_data.length);
 
-        double maxSimilarity = Double.NEGATIVE_INFINITY;
+        double[] topSimilarity = new double[]{Double.NEGATIVE_INFINITY, 0, 0};
         int maxIndex = -1;
 
         for (int i = TheBrain.W0; i <= data.length - reference.length; i++) {
@@ -72,11 +72,13 @@ public class SignalDetector {
                 vectorSqrLen += data[i + j] * data[i + j];
             }
             double similarity = crossCorrelation / Math.sqrt(vectorSqrLen);
-            if (similarity > maxSimilarity) {
-                maxSimilarity = crossCorrelation;
+            if (similarity > topSimilarity[0]) {
+                topSimilarity[2] = topSimilarity[1];
+                topSimilarity[1] = topSimilarity[0];
+                topSimilarity[0] = similarity;
                 maxIndex = i;
             }
         }
-        return new NoiseWindowInfo(maxIndex, maxSimilarity);
+        return new NoiseWindowInfo(maxIndex, topSimilarity);
     }
 }

@@ -67,7 +67,7 @@ public class MyRecorder {
                 TheBrain.MYCONF_SAMPLERATE,
                 MYCONF_CHANNEL_IN_CONFIG,
                 MYCONF_AUDIO_ENCODING);
-        bufferSize = minBufferSize * 10;
+        bufferSize = minBufferSize * 20;
     }
 
     public void startRecording() {
@@ -175,7 +175,7 @@ public class MyRecorder {
 
                 while (pos <= bufferSize / 2) {
                     SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.refBuffer);
-                    feedback(1, String.format(Locale.CHINA, "%d: %d %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity));
+                    feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity[0], si.similarity[1], si.similarity[2]));
                     if (si.status == 0)
                         theBrain.report(TheBrain.DATA_LISTEN, sampleCount + pos - bufferSize + si.position);
                     if (si.status == 0)
