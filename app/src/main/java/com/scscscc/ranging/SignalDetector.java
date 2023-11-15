@@ -6,11 +6,11 @@ public class SignalDetector {
 
     private static class NoiseWindowInfo {
         public int maxIndex;
-        public double crossCorrelation;
+        public double similarity;
 
-        public NoiseWindowInfo(int maxIndex, double crossCorrelation) {
+        public NoiseWindowInfo(int maxIndex, double similarity) {
             this.maxIndex = maxIndex;
-            this.crossCorrelation = crossCorrelation;
+            this.similarity = similarity;
         }
     }
 
@@ -19,13 +19,13 @@ public class SignalDetector {
         public int status;
         public double confidence;
         public int position;
-        public double crossCorrelation;
+        public double similarity;
 
-        public SignalInfo(int status, double confidence, int position, double crossCorrelation) {
+        public SignalInfo(int status, double confidence, int position, double similarity) {
             this.status = status;
             this.confidence = confidence;
             this.position = position;
-            this.crossCorrelation = crossCorrelation;
+            this.similarity = similarity;
         }
     }
 
@@ -40,10 +40,10 @@ public class SignalDetector {
         double L2_S = calculateL2Norm(data, N, N + TheBrain.W0);
         double L2_N = calculateL2Norm(data, N - TheBrain.W0, N);
 
-        if (L2_S / L2_N > 2 && nwi.crossCorrelation > 100)
-            return new SignalInfo(0, L2_S / L2_N, N, nwi.crossCorrelation);
+        if (L2_S / L2_N > 2)
+            return new SignalInfo(0, L2_S / L2_N, N, nwi.similarity);
         else
-            return new SignalInfo(-2, L2_S / L2_N, N, nwi.crossCorrelation);
+            return new SignalInfo(-2, L2_S / L2_N, N, nwi.similarity);
     }
 
     // This method is used to calculate the L2-norm
@@ -60,24 +60,23 @@ public class SignalDetector {
     // Actual check length = data.length - reference.length - W0 + 1
     private static NoiseWindowInfo getNoiseWindow(double[] original_data, double[] reference) {
         double[] data = Arrays.copyOf(original_data, original_data.length);
-        double max = Double.NEGATIVE_INFINITY;
-        for (double datum : data) max = Math.max(max, Math.abs(datum));
-        for (int i = 0; i < data.length; i++) data[i] /= max;
 
-        double maxCrossCorrelation = Double.NEGATIVE_INFINITY;
+        double maxSimilarity = Double.NEGATIVE_INFINITY;
         int maxIndex = -1;
 
         for (int i = TheBrain.W0; i <= data.length - reference.length; i++) {
             double crossCorrelation = 0;
+            double vectorSqrLen = 0;
             for (int j = 0; j < reference.length; j++) {
                 crossCorrelation += data[i + j] * reference[j];
+                vectorSqrLen += data[i + j] * data[i + j];
             }
-
-            if (crossCorrelation > maxCrossCorrelation) {
-                maxCrossCorrelation = crossCorrelation;
+            double similarity = crossCorrelation / Math.sqrt(vectorSqrLen);
+            if (similarity > maxSimilarity) {
+                maxSimilarity = crossCorrelation;
                 maxIndex = i;
             }
         }
-        return new NoiseWindowInfo(maxIndex, maxCrossCorrelation);
+        return new NoiseWindowInfo(maxIndex, maxSimilarity);
     }
 }

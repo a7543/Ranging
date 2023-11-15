@@ -147,7 +147,7 @@ public class MyRecorder {
 
             while (pos <= bufferSize / 2) {
                 SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.playBuffer);
-                feedback(5, "wowowow " + (sampleCount + pos - bufferSize + si.position) + " " + si.confidence + " " + si.crossCorrelation);
+                feedback(5, "wowowow " + (sampleCount + pos - bufferSize + si.position) + " " + si.confidence + " " + si.similarity);
                 pos += bufferSize / 2 - TheBrain.W0;
             }
         }
@@ -179,7 +179,7 @@ public class MyRecorder {
 
                 while (pos <= bufferSize / 2) {
                     SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.refBuffer);
-                    feedback(1, String.format("%d: %d %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.crossCorrelation));
+                    feedback(1, String.format("%d: %d %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity));
                     if (si.status == 0)
                         theBrain.report(TheBrain.DATA_LISTEN, sampleCount + pos - bufferSize + si.position);
                     if (si.status == 0)
