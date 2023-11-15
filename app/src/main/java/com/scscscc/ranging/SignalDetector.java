@@ -40,7 +40,7 @@ public class SignalDetector {
         double L2_S = calculateL2Norm(data, N, N + TheBrain.W0);
         double L2_N = calculateL2Norm(data, N - TheBrain.W0, N);
 
-        if (L2_S / L2_N > 2)
+        if (nwi.similarity[0] > 5 && nwi.similarity[1] > 5 && nwi.similarity[2] > 4)
             return new SignalInfo(0, L2_S / L2_N, N, nwi.similarity);
         else
             return new SignalInfo(-2, L2_S / L2_N, N, nwi.similarity);

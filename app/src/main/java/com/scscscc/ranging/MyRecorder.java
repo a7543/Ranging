@@ -67,7 +67,7 @@ public class MyRecorder {
                 TheBrain.MYCONF_SAMPLERATE,
                 MYCONF_CHANNEL_IN_CONFIG,
                 MYCONF_AUDIO_ENCODING);
-        bufferSize = minBufferSize * 20;
+        bufferSize = minBufferSize * 10;
     }
 
     public void startRecording() {
@@ -160,6 +160,10 @@ public class MyRecorder {
         while (isRecording) {
             read = recorder.read(buffer, 0, bufferSize);
             if (read != AudioRecord.ERROR_INVALID_OPERATION) {
+                if (read != bufferSize) {
+                    feedback(1, String.format("read error %d %d", bufferSize, read));
+                    break;
+                }
                 //test
                 short[] shorts = new short[buffer.length / 2];
                 // to turn bytes to shorts as either big endian or little endian.
@@ -173,15 +177,21 @@ public class MyRecorder {
                     x[i + shorts.length] = 1.0 * shorts[i] / Short.MAX_VALUE;
                 }
 
+                SignalDetector.SignalInfo lastsi = new SignalDetector.SignalInfo(0, 0, 0, new double[]{0, 0, 0});
                 while (pos <= bufferSize / 2) {
                     SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.refBuffer);
-                    feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity[0], si.similarity[1], si.similarity[2]));
+
                     if (si.status == 0)
                         theBrain.report(TheBrain.DATA_LISTEN, sampleCount + pos - bufferSize + si.position);
                     if (si.status == 0)
                         count += 1;
-                    feedback(2, "count: " + count);
-                    pos += bufferSize / 2 - TheBrain.W0 - TheBrain.playBuffer.length + 1;
+                    feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
+
+                    if (si.similarity[0] == lastsi.similarity[0] && si.similarity[1] == lastsi.similarity[1] && lastsi.similarity[2] == si.similarity[2])
+                        feedback(2, "omg " + si.position + " " + lastsi.position + " " +(si.position - lastsi.position));
+                    lastsi = si;
+
+                    pos += bufferSize / 2 - TheBrain.W0 - TheBrain.refBuffer.length + 1;
                 }
             }
         }

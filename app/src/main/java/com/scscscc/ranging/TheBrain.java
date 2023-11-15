@@ -20,9 +20,9 @@ public class TheBrain {
     public static int DATA_LISTEN = 10;
 
     public static final int MYCONF_SAMPLERATE = 44100;
-    public static final int MYCONF_CHIPFREQ1 = 2000;
-    public static final int MYCONF_CHIPFREQ2 = 6000;
-    public static final int W0 = 100;
+    public static final int MYCONF_CHIPFREQ1 = 19000;
+    public static final int MYCONF_CHIPFREQ2 = 20000;
+    public static final int W0 = 0;
     public static double[] playBuffer;
     public static double[] refBuffer;
     private static long[] data = new long[7];
@@ -152,7 +152,7 @@ public class TheBrain {
     }
 
     public TheBrain(Handler handler) {
-        genChirp(50, 11000, 5, 50, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
+        genChirp(100, 19000, 5, 200, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
         this.handler = handler;
         clear();
     }
