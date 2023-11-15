@@ -47,18 +47,14 @@ public class MyPlayer {
 
         player.play();
         isPlaying = true;
-        playingThread = new Thread(new Runnable() {
+        playingThread = new Thread(() -> {
+            playChirp();
 
-            @Override
-            public void run() {
-                playChirp();
-
-                isPlaying = false;
-                player.stop();
-                player.release();
-                player = null;
-                playingThread = null;
-            }
+            isPlaying = false;
+            player.stop();
+            player.release();
+            player = null;
+            playingThread = null;
         }, "AudioRecorder Thread");
 
         playingThread.start();
@@ -100,48 +96,6 @@ public class MyPlayer {
                 e.printStackTrace();
             }
             if (sampleIdx == TheBrain.playBuffer.length)
-                break;
-        }
-    }
-
-    private void playCosWave(int timeInMillis, float freq) {
-        int beepBufferSize = -1;
-        if (timeInMillis > 0)
-            beepBufferSize = TheBrain.MYCONF_SAMPLERATE * 2 * timeInMillis / 1000;
-        boolean beepMode = beepBufferSize != -1;
-        byte[] buffer = new byte[bufferSize];
-        int phase = 0;
-        float period = TheBrain.MYCONF_SAMPLERATE / freq;
-        while (isPlaying) {
-            try {
-                int playSize;
-                if (beepMode && beepBufferSize < bufferSize) {
-                    playSize = beepBufferSize;
-                } else
-                    playSize = bufferSize;
-
-                for (int i = 0; i < bufferSize / 2; i++) {
-                    if (i >= playSize / 2) {
-                        buffer[i * 2] = 0;
-                        buffer[i * 2 + 1] = 0;
-                    } else {
-                        phase += 1;
-                        while (phase > period)
-                            phase -= period;
-                        double d = Math.cos(2 * Math.PI * phase / TheBrain.MYCONF_SAMPLERATE * freq);
-                        short val = (short) (d * Short.MAX_VALUE);
-                        buffer[i * 2] = (byte) (val & 0x00ff);
-                        buffer[i * 2 + 1] = (byte) ((val & 0xff00) >> 8);
-                    }
-                }
-
-                player.write(buffer, 0, bufferSize);
-                if (beepMode)
-                    beepBufferSize -= playSize;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (beepBufferSize == 0)
                 break;
         }
     }

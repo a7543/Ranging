@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.Locale;
 
 public class MyRecorder {
     private static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_MONO;
@@ -112,7 +111,7 @@ public class MyRecorder {
 
         byte[] buffer = new byte[bufferSize];
         double[] x = new double[bufferSize];
-        int pos = bufferSize - theBrain.W0;
+        int pos = bufferSize - TheBrain.W0;
 
         int read;
         String filename = context.getDataDir() + "/test.dat";
@@ -149,7 +148,7 @@ public class MyRecorder {
             while (pos <= bufferSize / 2) {
                 SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.playBuffer);
                 feedback(5, "wowowow " + (sampleCount + pos - bufferSize + si.position) + " " + si.confidence + " " + si.crossCorrelation);
-                pos += bufferSize / 2 - theBrain.W0;
+                pos += bufferSize / 2 - TheBrain.W0;
             }
         }
     }
@@ -159,7 +158,7 @@ public class MyRecorder {
     private void detectSound() {
         byte[] buffer = new byte[bufferSize];
         double[] x = new double[bufferSize];
-        int pos = bufferSize - theBrain.W0;
+        int pos = bufferSize - TheBrain.W0;
 //        FakeRecorder fr = new FakeRecorder();
         int read = 0;
         while (isRecording) {
@@ -186,7 +185,7 @@ public class MyRecorder {
                     if (si.status == 0)
                         count += 1;
                     feedback(2, "count: " + count);
-                    pos += bufferSize / 2 - theBrain.W0 - TheBrain.playBuffer.length + 1;
+                    pos += bufferSize / 2 - TheBrain.W0 - TheBrain.playBuffer.length + 1;
                 }
             }
         }

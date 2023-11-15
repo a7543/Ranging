@@ -57,80 +57,42 @@ public class FirstFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.buttonDebug1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String message = "hello " + (int) Math.round(Math.random() * 100);
-                bluetoothService.sendMessage(message);
-            }
+        binding.buttonDebug1.setOnClickListener(view1 -> {
+            String message = "hello " + (int) Math.round(Math.random() * 100);
+            bluetoothService.sendMessage(message);
         });
-        binding.buttonDebug2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                myPlayer.beep(true);
-            }
+        binding.buttonDebug2.setOnClickListener(view110 -> myPlayer.beep(true));
+        binding.buttonStartPlay.setOnClickListener(view19 -> binding.textviewOut0.setText("not implemented"));
+        binding.buttonEndPlay.setOnClickListener(view18 -> {
+            binding.textviewOut0.setText("Stopped Playing");
+            myPlayer.stopPlaying();
         });
-        binding.buttonStartPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.textviewOut0.setText("not implemented");
-            }
+        binding.buttonStartListen.setOnClickListener(view17 -> {
+            binding.textviewOut0.setText("Started Listening");
+            myRecorder.startRecording();
         });
-        binding.buttonEndPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.textviewOut0.setText("Stopped Playing");
-                myPlayer.stopPlaying();
-            }
+        binding.buttonEndListen.setOnClickListener(view15 -> {
+            binding.textviewOut0.setText("Ended Listening");
+            myRecorder.stopRecording();
         });
-        binding.buttonStartListen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.textviewOut0.setText("Started Listening");
-                myRecorder.startRecording();
-            }
+        binding.buttonBluetoothServer.setOnClickListener(view16 -> {
+            binding.textviewOut0.setText("Bluetooth Server");
+            bluetoothService = new BluetoothService(theBrain, getContext(), handler, true);
+            theBrain.bluetoothService = bluetoothService;
+            bluetoothService.connect();
         });
-        binding.buttonEndListen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.textviewOut0.setText("Ended Listening");
-                myRecorder.stopRecording();
-            }
+        binding.buttonBluetoothClient.setOnClickListener(view13 -> {
+            binding.textviewOut0.setText("Bluetooth Client");
+            bluetoothService = new BluetoothService(theBrain, getContext(), handler, false);
+            theBrain.bluetoothService = bluetoothService;
+            bluetoothService.connect();
         });
-        binding.buttonBluetoothServer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.textviewOut0.setText("Bluetooth Server");
-                bluetoothService = new BluetoothService(theBrain, getContext(), handler, true);
-                theBrain.bluetoothService = bluetoothService;
-                bluetoothService.connect();
-            }
-        });
-        binding.buttonBluetoothClient.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.textviewOut0.setText("Bluetooth Client");
-                bluetoothService = new BluetoothService(theBrain, getContext(), handler, false);
-                theBrain.bluetoothService = bluetoothService;
-                bluetoothService.connect();
-            }
-        });
-        binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-            }
-        });
+        binding.buttonFirst.setOnClickListener(view12 -> NavHostFragment.findNavController(FirstFragment.this)
+                .navigate(R.id.action_FirstFragment_to_SecondFragment));
         binding.switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
             theBrain.enable = isChecked;
         });
-        binding.buttonReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                theBrain.reset();
-            }
-        });
+        binding.buttonReset.setOnClickListener(view14 -> theBrain.reset());
     }
 
     @Override

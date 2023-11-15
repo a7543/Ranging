@@ -1,18 +1,9 @@
 package com.scscscc.ranging;
 
 
-import android.media.AudioRecord;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-import android.widget.Switch;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -25,8 +16,6 @@ public class TheBrain {
     public static int DATA_A3 = 4;
     public static int DATA_B1 = 5;
     public static int DATA_B3 = 6;
-    public static int DATA_LISTEN_1 = 7;
-    public static int DATA_LISTEN_2 = 8;
     public static int DATA_DELTA = 9;
     public static int DATA_LISTEN = 10;
 
