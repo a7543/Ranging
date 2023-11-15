@@ -3,7 +3,6 @@ package com.scscscc.ranging;
 import java.util.Arrays;
 
 public class SignalDetector {
-    private static TheBrain theBrain;
 
     private static class NoiseWindowInfo {
         public int maxIndex;
@@ -15,9 +14,6 @@ public class SignalDetector {
         }
     }
 
-    public SignalDetector(TheBrain theBrain) {
-        this.theBrain = theBrain;
-    }
 
     public static class SignalInfo {
         public int status;
