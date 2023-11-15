@@ -73,8 +73,7 @@ public class FirstFragment extends Fragment {
         binding.buttonStartPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                binding.textviewOut0.setText("Started Playing");
-                myPlayer.startPlaying(false, 0, 2000);
+                binding.textviewOut0.setText("not implemented");
             }
         });
         binding.buttonEndPlay.setOnClickListener(new View.OnClickListener() {

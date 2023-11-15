@@ -3,7 +3,7 @@ package com.scscscc.ranging;
 import java.util.Arrays;
 
 public class SignalDetector {
-    public static final int W0 = 200;
+    private static TheBrain theBrain;
 
     private static class NoiseWindowInfo {
         public int maxIndex;
@@ -14,7 +14,9 @@ public class SignalDetector {
             this.crossCorrelation = crossCorrelation;
         }
     }
-
+    public SignalDetector(TheBrain theBrain) {
+        this.theBrain = theBrain;
+    }
     public static class SignalInfo {
         public int status;
         public double confidence;
@@ -37,8 +39,8 @@ public class SignalDetector {
             return new SignalInfo(-1, 0, 0, 0);
         }
 
-        double L2_S = calculateL2Norm(data, N, N + W0);
-        double L2_N = calculateL2Norm(data, N - W0, N);
+        double L2_S = calculateL2Norm(data, N, N + theBrain.W0);
+        double L2_N = calculateL2Norm(data, N - theBrain.W0, N);
 
         if (L2_S / L2_N > 2 && nwi.crossCorrelation > 100)
             return new SignalInfo(0, L2_S / L2_N, N, nwi.crossCorrelation);
@@ -67,7 +69,7 @@ public class SignalDetector {
         double maxCrossCorrelation = Double.NEGATIVE_INFINITY;
         int maxIndex = -1;
 
-        for (int i = W0; i <= data.length - reference.length; i++) {
+        for (int i = theBrain.W0; i <= data.length - reference.length; i++) {
             double crossCorrelation = 0;
             for (int j = 0; j < reference.length; j++) {
                 crossCorrelation += data[i + j] * reference[j];

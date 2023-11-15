@@ -34,8 +34,8 @@ public class MyPlayer {
         bufferSize = minBufferSize;
     }
 
-    public void startPlaying(boolean warmup, int timeInMillis, int freq) {
-        if(isPlaying)
+    public void startPlaying() {
+        if (isPlaying)
             return;
         player = new AudioTrack(
                 AudioManager.STREAM_MUSIC,
@@ -51,12 +51,7 @@ public class MyPlayer {
 
             @Override
             public void run() {
-                if (warmup)
-                    playCosWave(50, 2000);
-                if (timeInMillis >= 0)
-                    playCosWave(timeInMillis, freq);
-                else
-                    playChirp(50);
+                playChirp();
 
                 isPlaying = false;
                 player.stop();
@@ -76,56 +71,35 @@ public class MyPlayer {
     public void beep(boolean isA) {
         if (isA)
             theBrain.report(TheBrain.DATA_A0, System.nanoTime());
-        startPlaying(true, -1, 0);
+        startPlaying();
     }
-//    public void beep(boolean isA) {
-//        int freq;
-//        if (isA)
-//            freq = 3000;
-//        else
-//            freq = 4000;
-//
-//        if (isA)
-//            theBrain.report(TheBrain.DATA_A0, System.nanoTime());
-//        startPlaying(true, 50, freq);
-//    }
 
-
-    private void playChirp(int timeInMillis) {
-        int beepBufferSize = -1;
-        if (timeInMillis > 0)
-            beepBufferSize = TheBrain.MYCONF_SAMPLERATE * 2 * timeInMillis / 1000;
-        boolean beepMode = beepBufferSize != -1;
+    private void playChirp() {
         byte[] buffer = new byte[bufferSize];
+        int bufferSamples = bufferSize / 2;
         int sampleIdx = 0;
         while (isPlaying) {
             try {
-                int playSize;
-                if (beepMode && beepBufferSize < bufferSize) {
-                    playSize = beepBufferSize;
-                } else
-                    playSize = bufferSize;
-                for (int i = 0; i < bufferSize / 2; i++) {
-                    if (i >= playSize / 2) {
+                int playSamples = 0;
+                for (int i = 0; i < bufferSamples; i++) {
+                    if (sampleIdx == TheBrain.playBuffer.length) {
                         buffer[i * 2] = 0;
                         buffer[i * 2 + 1] = 0;
                     } else {
-                        sampleIdx += 1;
-                        if (sampleIdx >= TheBrain.chirpBuffer.length)
-                            sampleIdx -= TheBrain.chirpBuffer.length;
-                        double d = TheBrain.chirpBuffer[sampleIdx];
+                        playSamples += 1;
+                        double d = TheBrain.playBuffer[sampleIdx];
                         short val = (short) (d * Short.MAX_VALUE);
                         buffer[i * 2] = (byte) (val & 0x00ff);
                         buffer[i * 2 + 1] = (byte) ((val & 0xff00) >> 8);
+
+                        sampleIdx += 1;
                     }
                 }
-                player.write(buffer, 0, bufferSize);
-                if (beepMode)
-                    beepBufferSize -= playSize;
+                player.write(buffer, 0, playSamples * 2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (beepBufferSize == 0)
+            if (sampleIdx == TheBrain.playBuffer.length)
                 break;
         }
     }

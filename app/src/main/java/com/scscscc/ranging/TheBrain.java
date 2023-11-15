@@ -33,7 +33,9 @@ public class TheBrain {
     public static final int MYCONF_SAMPLERATE = 44100;
     public static final int MYCONF_CHIPFREQ1 = 2000;
     public static final int MYCONF_CHIPFREQ2 = 6000;
-    public static double[] chirpBuffer;
+    public static final int W0 = 100;
+    public static double[] playBuffer;
+    public static double[] refBuffer;
     private static long[] data = new long[7];
     private Handler handler;
     private double soundSpeed = 340;
@@ -42,16 +44,32 @@ public class TheBrain {
 
     public boolean enable = false;
 
-    private void genChirp(int timeInMillis, float freq1, float freq2) {
+    private void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
+        int warmSamples = warmTimeInMillis * MYCONF_SAMPLERATE / 1000;
+        int chirpSamples = chirpTimeInMillis * MYCONF_SAMPLERATE / 1000;
+        int waitSamples = waitTimeInMillis * MYCONF_SAMPLERATE / 1000;
 
-        int samples = timeInMillis * MYCONF_SAMPLERATE / 1000;
-        chirpBuffer = new double[samples];
-        float freqPerSample = (freq2 - freq1) / samples;
-        for (int sampleIdx = 0; sampleIdx < samples; sampleIdx++) {
+        double[] warmBuffer = new double[warmSamples];
+        for (int sampleIdx = 0; sampleIdx < warmSamples; sampleIdx++) {
             double t = 1.0 * sampleIdx / MYCONF_SAMPLERATE;
-            double d = Math.cos(2 * Math.PI * (freq1 + freq1 + sampleIdx * freqPerSample) * t / 2);
+            double d = Math.sin(2 * Math.PI * warmFreq * t);
+            warmBuffer[sampleIdx] = d;
+        }
+
+        double[] chirpBuffer = new double[chirpSamples];
+        float freqPerSample = (freq2 - freq1) / chirpSamples;
+        for (int sampleIdx = 0; sampleIdx < chirpSamples; sampleIdx++) {
+            double t = 1.0 * sampleIdx / MYCONF_SAMPLERATE;
+            double d = Math.sin(2 * Math.PI * (freq1 + freq1 + sampleIdx * freqPerSample) * t / 2);
             chirpBuffer[sampleIdx] = d;
         }
+
+        refBuffer = new double[chirpSamples];
+        System.arraycopy(chirpBuffer, 0, refBuffer, 0, chirpSamples);
+
+        playBuffer = new double[warmSamples + W0 + waitSamples + chirpSamples];
+        System.arraycopy(warmBuffer, 0, playBuffer, 0, warmSamples);
+        System.arraycopy(chirpBuffer, 0, playBuffer, warmSamples + W0 + waitSamples, chirpSamples);
     }
 
 
@@ -145,7 +163,7 @@ public class TheBrain {
     }
 
     public TheBrain(Handler handler) {
-        genChirp(50, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
+        genChirp(50, 11000, 5, 50, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
         this.handler = handler;
         clear();
     }
