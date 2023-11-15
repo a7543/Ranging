@@ -30,6 +30,7 @@ public class TheBrain {
     private double soundSpeed = 340;
     public MyPlayer myPlayer;
     public BluetoothService bluetoothService;
+    public static long startTime;
 
     public boolean enable = false;
 
@@ -86,6 +87,7 @@ public class TheBrain {
         if (type == DATA_A0) {
             clear();
             data[DATA_A0] = value;
+            startTime = System.nanoTime();
             feedback(5, "A0: " + value, true);
             return;
         } else if (type == DATA_LISTEN) {
@@ -135,7 +137,9 @@ public class TheBrain {
             double ta1 = 1.0 * data[DATA_A1] / MYCONF_SAMPLERATE;
             double tb3_tb1 = 1.0 * data[DATA_DELTA_B] / MYCONF_SAMPLERATE;
             double dist = c / 2 * ((ta3 - ta1) - (tb3_tb1));
-            feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist), false);
+            long endTime = System.nanoTime();
+            double time = 1.0 * (endTime - startTime) / 1000000;
+            feedback(4, String.format(Locale.CHINA, "dist: %.2f\ntime: %.2fms", dist, time), false);
             feedback(5, "update dist = " + dist, true);
             clear();
             //myPlayer.beep(true);
