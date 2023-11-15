@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class MyRecorder {
     private static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_MONO;
@@ -48,7 +49,6 @@ public class MyRecorder {
                 pos += 1;
 
             }
-            int i = 0;
         }
     }
 
@@ -80,14 +80,10 @@ public class MyRecorder {
                 TheBrain.MYCONF_SAMPLERATE, MYCONF_CHANNEL_IN_CONFIG, MYCONF_AUDIO_ENCODING, bufferSize);
         recorder.startRecording();
         isRecording = true;
-        recordingThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
+        recordingThread = new Thread(() -> {
 //                writeAudioDataToFile();
 //                soundtest();
-                detectSound();
-            }
+            detectSound();
         }, "AudioRecorder Thread");
         recordingThread.start();
     }
@@ -160,7 +156,7 @@ public class MyRecorder {
         double[] x = new double[bufferSize];
         int pos = bufferSize - TheBrain.W0;
 //        FakeRecorder fr = new FakeRecorder();
-        int read = 0;
+        int read;
         while (isRecording) {
             read = recorder.read(buffer, 0, bufferSize);
             if (read != AudioRecord.ERROR_INVALID_OPERATION) {
@@ -179,7 +175,7 @@ public class MyRecorder {
 
                 while (pos <= bufferSize / 2) {
                     SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.refBuffer);
-                    feedback(1, String.format("%d: %d %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity));
+                    feedback(1, String.format(Locale.CHINA, "%d: %d %.2f %.2f\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity));
                     if (si.status == 0)
                         theBrain.report(TheBrain.DATA_LISTEN, sampleCount + pos - bufferSize + si.position);
                     if (si.status == 0)
@@ -229,7 +225,7 @@ public class MyRecorder {
             e.printStackTrace();
         }
 
-        int read = 0;
+        int read;
 
         if (os != null) {
             while (isRecording) {
