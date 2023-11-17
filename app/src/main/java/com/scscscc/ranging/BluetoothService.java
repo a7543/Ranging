@@ -25,24 +25,20 @@ import java.util.Set;
 import java.util.UUID;
 
 public class BluetoothService {
-    private final Handler handler;
-    private final Context context;
-    private ClientThread ct;
-    private ServerThread st;
-    private InputStream mmInStream;
-    private OutputStream mmOutStream;
-    private boolean isServer;
-    private TheBrain theBrain;
+    private static  Handler handler;
+    private static ClientThread ct;
+    private static ServerThread st;
+    private static InputStream mmInStream;
+    private static OutputStream mmOutStream;
+    private static boolean isServer;
 
-    public BluetoothService(TheBrain theBrain, Context context, Handler handler, boolean isServer) {
-        this.theBrain = theBrain;
-        this.context = context;
-        this.handler = handler;
-        this.isServer = isServer;
+    public static void init(Handler p_handler, boolean p_isServer) {
+        handler = p_handler;
+        isServer = p_isServer;
         feedback("Created bluetooth service object", false);
     }
 
-    private void feedback(String reason, boolean done) {
+    private static void feedback(String reason, boolean done) {
         Message msg = new Message();
         msg.what = 3;
         if (done)
@@ -54,7 +50,7 @@ public class BluetoothService {
     }
 
     @SuppressLint("MissingPermission")
-    public void connect() {
+    public static void connect(Context context) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -123,7 +119,7 @@ public class BluetoothService {
         }
     }
 
-    public void sendMessage(String txt) {
+    public static void sendMessage(String txt) {
         try {
             byte[] txtbytes = txt.getBytes();
             byte[] buffer = new byte[txtbytes.length + 1];
@@ -135,7 +131,7 @@ public class BluetoothService {
         }
     }
 
-    public void sendMessage(long value) {
+    public static void sendMessage(long value) {
         try {
             byte[] valuebytes = ByteBuffer.allocate(8).putLong(value).array();
             byte[] buffer = new byte[valuebytes.length + 1];
@@ -148,7 +144,7 @@ public class BluetoothService {
     }
 
     @SuppressLint("MissingPermission")
-    private class ServerThread extends Thread {
+    private static class ServerThread extends Thread {
         private final BluetoothServerSocket mmServerSocket;
         private BluetoothSocket socket;
 
@@ -219,7 +215,7 @@ public class BluetoothService {
                         feedback(readMessage, false);
                     } else if (firstByte == 1) {
                         long delta = ByteBuffer.wrap(data).getLong();
-                        theBrain.report(TheBrain.DATA_DELTA, delta);
+                        TheBrain.report(TheBrain.DATA_DELTA, delta);
                     }
                 } catch (IOException e) {
                     feedback("Error occurred when reading dat", true);
@@ -243,7 +239,7 @@ public class BluetoothService {
     }
 
     @SuppressLint("MissingPermission")
-    private class ClientThread extends Thread {
+    private static class ClientThread extends Thread {
         private final BluetoothSocket socket;
 
         public ClientThread(BluetoothDevice device) {
@@ -304,7 +300,7 @@ public class BluetoothService {
                         feedback(readMessage, false);
                     } else if (firstByte == 1) {
                         long delta = ByteBuffer.wrap(data).getLong();
-                        theBrain.report(TheBrain.DATA_DELTA, delta);
+                        TheBrain.report(TheBrain.DATA_DELTA, delta);
                     }
                 } catch (IOException e) {
                     feedback("Error occurred when reading dat", true);

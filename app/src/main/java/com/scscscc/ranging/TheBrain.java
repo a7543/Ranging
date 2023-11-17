@@ -25,16 +25,14 @@ public class TheBrain {
     public static final int W0 = 0;
     public static double[] playBuffer;
     public static double[] refBuffer;
-    private static long[] data = new long[7];
-    private Handler handler;
-    private double soundSpeed = 340;
-    public MyPlayer myPlayer;
-    public BluetoothService bluetoothService;
-    public static long startTime;
+    private static final long[] data = new long[7];
+    private static Handler handler;
+    private static double soundSpeed = 340;
+    private static long startTime;
 
-    public boolean enable = false;
+    public static boolean enable = false;
 
-    private void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
+    private static void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
         int warmSamples = warmTimeInMillis * MYCONF_SAMPLERATE / 1000;
         int chirpSamples = chirpTimeInMillis * MYCONF_SAMPLERATE / 1000;
         int waitSamples = waitTimeInMillis * MYCONF_SAMPLERATE / 1000;
@@ -63,7 +61,7 @@ public class TheBrain {
     }
 
 
-    private void feedback(int channel, String txt, boolean append) {
+    private static void feedback(int channel, String txt, boolean append) {
         Message msg = new Message();
         msg.what = channel;
         msg.obj = txt;
@@ -72,16 +70,16 @@ public class TheBrain {
         handler.sendMessage(msg);
     }
 
-    public void reset() {
+    public static void reset() {
         clear();
         feedback(5, "reset brain", false);
     }
 
-    private void clear() {
+    private static void clear() {
         Arrays.fill(data, -1);
     }
 
-    public void report(int type, long value) {
+    public static void report(int type, long value) {
         if (!enable)
             return;
         if (type == DATA_A0) {
@@ -100,12 +98,12 @@ public class TheBrain {
                     long delta = data[DATA_A3] - data[DATA_A1];
                     feedback(5, "A3: " + value, true);
                     feedback(5, "send deltaa: " + delta, true);
-                    bluetoothService.sendMessage(delta);
+                    BluetoothService.sendMessage(delta);
                 }
             } else { //B
                 if (data[DATA_B1] == -1) {
                     data[DATA_B1] = value;
-                    myPlayer.beep(false);
+                    MyPlayer.beep(false);
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -117,7 +115,7 @@ public class TheBrain {
                     long delta = data[DATA_B3] - data[DATA_B1];
                     feedback(5, "B3: " + value, true);
                     feedback(5, "send deltab: " + delta, true);
-                    bluetoothService.sendMessage(delta);
+                    BluetoothService.sendMessage(delta);
                 }
             }
             return;
@@ -155,9 +153,9 @@ public class TheBrain {
         }
     }
 
-    public TheBrain(Handler handler) {
+    public static void init(Handler p_handler) {
         genChirp(100, 19000, 5, 200, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
-        this.handler = handler;
+        handler = p_handler;
         clear();
     }
 }
