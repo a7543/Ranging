@@ -80,8 +80,16 @@ public class TheBrain {
     }
 
     public static void report(int type, long value) {
-        if (!enable)
+        if (!enable) {
+            if (type == DATA_A0) {
+                startTime = System.nanoTime();
+            } else if (type == DATA_LISTEN) {
+                long time = System.nanoTime() - startTime;
+                double timeInMilli = 1.0 * time / 1000000;
+                feedback(5, String.format(Locale.CHINA, "time: %.2fms", timeInMilli), false);
+            }
             return;
+        }
         if (type == DATA_A0) {
             clear();
             data[DATA_A0] = value;
