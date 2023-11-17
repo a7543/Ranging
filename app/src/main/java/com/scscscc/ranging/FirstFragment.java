@@ -23,26 +23,26 @@ public class FirstFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-        handler = new Handler() {
-            public void handleMessage(Message msg) {
-                if (msg.what == 0)
-                    binding.textviewOut0.setText(msg.obj.toString());
-                else if (msg.what == 1)
-                    binding.textviewOut1.setText(msg.obj.toString());
-                else if (msg.what == 2)
-                    binding.textviewOut2.setText(msg.obj.toString());
-                else if (msg.what == 3)
-                    binding.textviewOut3.setText(msg.obj.toString());
-                else if (msg.what == 4)
-                    binding.textviewOut4.setText(msg.obj.toString());
-                else if (msg.what == 5)
-                    if (msg.arg2 == 1)
-                        binding.textviewOut5.setText(binding.textviewOut5.getText() + msg.obj.toString() + "\n");
-                    else
-                        binding.textviewOut5.setText(msg.obj.toString());
-                super.handleMessage(msg);
-            }
-        };
+        handler = new Handler(
+                msg -> {
+                    if (msg.what == 0)
+                        binding.textviewOut0.setText(msg.obj.toString());
+                    else if (msg.what == 1)
+                        binding.textviewOut1.setText(msg.obj.toString());
+                    else if (msg.what == 2)
+                        binding.textviewOut2.setText(msg.obj.toString());
+                    else if (msg.what == 3)
+                        binding.textviewOut3.setText(msg.obj.toString());
+                    else if (msg.what == 4)
+                        binding.textviewOut4.setText(msg.obj.toString());
+                    else if (msg.what == 5)
+                        if (msg.arg2 == 1)
+                            binding.textviewOut5.setText(binding.textviewOut5.getText() + msg.obj.toString() + "\n");
+                        else
+                            binding.textviewOut5.setText(msg.obj.toString());
+                    return true;
+                }
+        );
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         TheBrain.init(handler);
         MyRecorder.init(handler);
