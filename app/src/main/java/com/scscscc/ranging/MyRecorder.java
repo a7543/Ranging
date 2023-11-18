@@ -21,6 +21,7 @@ public class MyRecorder {
     private static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
     private static int bufferSize;
+    private static int bufferSample;
     private static boolean isRecording;
     private static AudioRecord recorder;
     private static Thread recordingThread;
@@ -51,11 +52,11 @@ public class MyRecorder {
 
     public static void init(Handler p_handler) {
         handler = p_handler;
-        int minBufferSize = AudioRecord.getMinBufferSize(
+        bufferSize = AudioRecord.getMinBufferSize(
                 TheBrain.MYCONF_SAMPLERATE,
                 MYCONF_CHANNEL_IN_CONFIG,
                 MYCONF_AUDIO_ENCODING);
-        bufferSize = minBufferSize * 10;
+        bufferSample = bufferSize / 2;
     }
 
     public static void startRecording(Context context) {
@@ -89,7 +90,6 @@ public class MyRecorder {
 
     }
 
-    private static int sampleCount = 0;
 
 //    private static void soundtest() {
 //
@@ -141,10 +141,12 @@ public class MyRecorder {
 
     private static void detectSound() {
         byte[] buffer = new byte[bufferSize];
-        double[] x = new double[bufferSize];
-        int pos = bufferSize - TheBrain.W0;
+        double[] x = new double[TheBrain.refBuffer.length + bufferSample + TheBrain.W0];
+        Arrays.fill(x, 7);
+        int totalPos = TheBrain.W0;
 //        FakeRecorder fr = new FakeRecorder();
         int read;
+        SignalDetector.SignalInfo lastsi = new SignalDetector.SignalInfo(0, 0, 0, new double[]{0, 0, 0});
         while (isRecording) {
             read = recorder.read(buffer, 0, bufferSize);
             if (read != AudioRecord.ERROR_INVALID_OPERATION) {
@@ -153,37 +155,35 @@ public class MyRecorder {
                     break;
                 }
                 //test
-                short[] shorts = new short[buffer.length / 2];
+                short[] shorts = new short[bufferSample];
                 // to turn bytes to shorts as either big endian or little endian.
                 ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
 
-//                fr.read(shorts);
-                System.arraycopy(x, bufferSize / 2, x, 0, bufferSize / 2);
-                pos -= bufferSize / 2;
-                sampleCount += bufferSize / 2;
+                double[] x_tmp = new double[TheBrain.refBuffer.length];
+                System.arraycopy(x, bufferSample, x_tmp, 0, TheBrain.refBuffer.length);
+                System.arraycopy(x_tmp, 0, x, 0, TheBrain.refBuffer.length);
+
                 for (int i = 0; i < shorts.length; i++) {
-                    x[i + shorts.length] = 1.0 * shorts[i] / Short.MAX_VALUE;
+                    x[i + TheBrain.refBuffer.length] = 1.0 * shorts[i] / Short.MAX_VALUE;
                 }
+                totalPos += bufferSample;
 
-                SignalDetector.SignalInfo lastsi = new SignalDetector.SignalInfo(0, 0, 0, new double[]{0, 0, 0});
-                while (pos <= bufferSize / 2) {
-                    SignalDetector.SignalInfo si = SignalDetector.detectSignal(Arrays.copyOfRange(x, pos, pos + bufferSize / 2), TheBrain.refBuffer);
+                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refBuffer);
 
-                    if (si.status == 0)
-                        TheBrain.report(TheBrain.DATA_LISTEN, sampleCount + pos - bufferSize + si.position);
-                    if (si.status == 0)
-                        count += 1;
-                    feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, (sampleCount + pos - bufferSize + si.position), si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
-
-                    if (si.similarity[0] == lastsi.similarity[0] && si.similarity[1] == lastsi.similarity[1] && lastsi.similarity[2] == si.similarity[2])
-                        feedback(2, "omg " + si.position + " " + lastsi.position + " " + (si.position - lastsi.position));
-                    lastsi = si;
-
-                    pos += bufferSize / 2 - TheBrain.W0 - TheBrain.refBuffer.length + 1;
+                if (si.status == 0) {
+                    TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position);
+                    count += 1;
                 }
+                feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, totalPos + si.position, si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
+
+                if (si.similarity[0] == lastsi.similarity[0] && si.similarity[1] == lastsi.similarity[1] && lastsi.similarity[2] == si.similarity[2])
+                    feedback(2, "omg " + si.position + " " + lastsi.position + " " + (si.position - lastsi.position));
+                lastsi = si;
+
             }
         }
     }
+}
 
 //    private void detectSound() {
 //        byte[] buffer = new byte[bufferSize];
@@ -244,4 +244,3 @@ public class MyRecorder {
 //            }
 //        }
 //    }
-}
