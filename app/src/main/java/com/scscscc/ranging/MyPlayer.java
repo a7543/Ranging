@@ -60,31 +60,16 @@ public class MyPlayer {
 
     private static void playChirp() {
         byte[] buffer = new byte[bufferSize];
-        int bufferSampleNum = bufferSize / 2;
-        int sampleIdx = 0;
-        while (isPlaying) {
+        int bufferPos = 0;
+        while (isPlaying && bufferPos < TheBrain.playBuffer.length) {
             try {
-                int playSampleNum = 0;
-                for (int i = 0; i < bufferSampleNum; i++) {
-                    if (sampleIdx == TheBrain.playSamples.length) {
-                        buffer[i * 2] = 0;
-                        buffer[i * 2 + 1] = 0;
-                    } else {
-                        playSampleNum += 1;
-                        double d = TheBrain.playSamples[sampleIdx];
-                        short val = (short) (d * Short.MAX_VALUE);
-                        buffer[i * 2] = (byte) (val & 0x00ff);
-                        buffer[i * 2 + 1] = (byte) ((val & 0xff00) >> 8);
-
-                        sampleIdx += 1;
-                    }
-                }
-                player.write(buffer, 0, playSampleNum * 2);
+                int playLength = Math.min(bufferSize, TheBrain.playBuffer.length - bufferPos);
+                System.arraycopy(TheBrain.playBuffer, bufferPos, buffer, 0, playLength);
+                player.write(buffer, 0, playLength);
+                bufferPos += playLength;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (sampleIdx == TheBrain.playSamples.length)
-                break;
         }
     }
 //

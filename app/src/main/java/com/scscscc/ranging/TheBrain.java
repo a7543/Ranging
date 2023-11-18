@@ -24,6 +24,7 @@ public class TheBrain {
     public static final int MYCONF_CHIPFREQ2 = 20000;
     public static final int W0 = 0;
     public static double[] playSamples;
+    public static byte[] playBuffer;
     public static double[] refSamples;
     private static final long[] data = new long[7];
     private static Handler handler;
@@ -58,6 +59,13 @@ public class TheBrain {
         playSamples = new double[warmSampleNum + W0 + waitSampleNum + chirpSampleNum];
         System.arraycopy(warmBuffer, 0, playSamples, 0, warmSampleNum);
         System.arraycopy(chirpBuffer, 0, playSamples, warmSampleNum + W0 + waitSampleNum, chirpSampleNum);
+
+        playBuffer = new byte[playSamples.length * 2];
+        for (int i = 0; i < playSamples.length; i++) {
+            short s = (short) (playSamples[i] * Short.MAX_VALUE);
+            playBuffer[i * 2] = (byte) (s & 0xff);
+            playBuffer[i * 2 + 1] = (byte) ((s >> 8) & 0xff);
+        }
     }
 
 
