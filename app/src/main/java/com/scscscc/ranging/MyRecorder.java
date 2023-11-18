@@ -33,10 +33,10 @@ public class MyRecorder {
 
         public void read(short[] buffer) {
             for (int i = 0; i < buffer.length; i++) {
-                if (pos < goodpos || pos >= goodpos + TheBrain.playBuffer.length)
+                if (pos < goodpos || pos >= goodpos + TheBrain.playSamples.length)
                     buffer[i] = 1;
                 else
-                    buffer[i] = (short) (TheBrain.playBuffer[pos - goodpos] * Short.MAX_VALUE);
+                    buffer[i] = (short) (TheBrain.playSamples[pos - goodpos] * Short.MAX_VALUE);
                 pos += 1;
 
             }
@@ -141,7 +141,7 @@ public class MyRecorder {
 
     private static void detectSound() {
         byte[] buffer = new byte[bufferSize];
-        double[] x = new double[TheBrain.refBuffer.length + bufferSample + TheBrain.W0];
+        double[] x = new double[TheBrain.refSamples.length + bufferSample + TheBrain.W0];
         Arrays.fill(x, 7);
         int totalPos = TheBrain.W0;
 //        FakeRecorder fr = new FakeRecorder();
@@ -159,16 +159,16 @@ public class MyRecorder {
                 // to turn bytes to shorts as either big endian or little endian.
                 ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
 
-                double[] x_tmp = new double[TheBrain.refBuffer.length];
-                System.arraycopy(x, bufferSample, x_tmp, 0, TheBrain.refBuffer.length);
-                System.arraycopy(x_tmp, 0, x, 0, TheBrain.refBuffer.length);
+                double[] x_tmp = new double[TheBrain.refSamples.length];
+                System.arraycopy(x, bufferSample, x_tmp, 0, TheBrain.refSamples.length);
+                System.arraycopy(x_tmp, 0, x, 0, TheBrain.refSamples.length);
 
                 for (int i = 0; i < shorts.length; i++) {
-                    x[i + TheBrain.refBuffer.length] = 1.0 * shorts[i] / Short.MAX_VALUE;
+                    x[i + TheBrain.refSamples.length] = 1.0 * shorts[i] / Short.MAX_VALUE;
                 }
                 totalPos += bufferSample;
 
-                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refBuffer);
+                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
 
                 if (si.status == 0) {
                     TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position);

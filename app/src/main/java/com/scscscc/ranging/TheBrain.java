@@ -23,8 +23,8 @@ public class TheBrain {
     public static final int MYCONF_CHIPFREQ1 = 19000;
     public static final int MYCONF_CHIPFREQ2 = 20000;
     public static final int W0 = 0;
-    public static double[] playBuffer;
-    public static double[] refBuffer;
+    public static double[] playSamples;
+    public static double[] refSamples;
     private static final long[] data = new long[7];
     private static Handler handler;
     private static double soundSpeed = 340;
@@ -33,31 +33,31 @@ public class TheBrain {
     public static boolean enable = false;
 
     private static void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
-        int warmSamples = warmTimeInMillis * MYCONF_SAMPLERATE / 1000;
-        int chirpSamples = chirpTimeInMillis * MYCONF_SAMPLERATE / 1000;
-        int waitSamples = waitTimeInMillis * MYCONF_SAMPLERATE / 1000;
+        int warmSampleNum = warmTimeInMillis * MYCONF_SAMPLERATE / 1000;
+        int chirpSampleNum = chirpTimeInMillis * MYCONF_SAMPLERATE / 1000;
+        int waitSampleNum = waitTimeInMillis * MYCONF_SAMPLERATE / 1000;
 
-        double[] warmBuffer = new double[warmSamples];
-        for (int sampleIdx = 0; sampleIdx < warmSamples; sampleIdx++) {
+        double[] warmBuffer = new double[warmSampleNum];
+        for (int sampleIdx = 0; sampleIdx < warmSampleNum; sampleIdx++) {
             double t = 1.0 * sampleIdx / MYCONF_SAMPLERATE;
             double d = Math.sin(2 * Math.PI * warmFreq * t);
             warmBuffer[sampleIdx] = d;
         }
 
-        double[] chirpBuffer = new double[chirpSamples];
-        float freqPerSample = (freq2 - freq1) / chirpSamples;
-        for (int sampleIdx = 0; sampleIdx < chirpSamples; sampleIdx++) {
+        double[] chirpBuffer = new double[chirpSampleNum];
+        float freqPerSample = (freq2 - freq1) / chirpSampleNum;
+        for (int sampleIdx = 0; sampleIdx < chirpSampleNum; sampleIdx++) {
             double t = 1.0 * sampleIdx / MYCONF_SAMPLERATE;
             double d = Math.sin(2 * Math.PI * (freq1 + freq1 + sampleIdx * freqPerSample) * t / 2);
             chirpBuffer[sampleIdx] = d;
         }
 
-        refBuffer = new double[chirpSamples];
-        System.arraycopy(chirpBuffer, 0, refBuffer, 0, chirpSamples);
+        refSamples = new double[chirpSampleNum];
+        System.arraycopy(chirpBuffer, 0, refSamples, 0, chirpSampleNum);
 
-        playBuffer = new double[warmSamples + W0 + waitSamples + chirpSamples];
-        System.arraycopy(warmBuffer, 0, playBuffer, 0, warmSamples);
-        System.arraycopy(chirpBuffer, 0, playBuffer, warmSamples + W0 + waitSamples, chirpSamples);
+        playSamples = new double[warmSampleNum + W0 + waitSampleNum + chirpSampleNum];
+        System.arraycopy(warmBuffer, 0, playSamples, 0, warmSampleNum);
+        System.arraycopy(chirpBuffer, 0, playSamples, warmSampleNum + W0 + waitSampleNum, chirpSampleNum);
     }
 
 
