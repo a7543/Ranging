@@ -5,10 +5,10 @@ import java.util.Arrays;
 public class SignalDetector {
 
     private static class NoiseWindowInfo {
-        public int maxIndex;
+        public int[] maxIndex;
         public double[] similarity;
 
-        public NoiseWindowInfo(int maxIndex, double[] similarity) {
+        public NoiseWindowInfo(int[] maxIndex, double[] similarity) {
             this.maxIndex = maxIndex;
             this.similarity = similarity;
         }
@@ -18,10 +18,10 @@ public class SignalDetector {
     public static class SignalInfo {
         public int status;
         public double confidence;
-        public int position;
+        public int[] position;
         public double[] similarity;
 
-        public SignalInfo(int status, double confidence, int position, double[] similarity) {
+        public SignalInfo(int status, double confidence, int[] position, double[] similarity) {
             this.status = status;
             this.confidence = confidence;
             this.position = position;
@@ -31,19 +31,19 @@ public class SignalDetector {
 
     public static SignalInfo detectSignal(double[] data, double[] reference) {
         NoiseWindowInfo nwi = getNoiseWindow(data, reference);
-        int N = nwi.maxIndex;
+        int N = nwi.maxIndex[0];
         if (N == -1) {
             //System.out.println("Detection failed: signal energy is too weak or the noise level is high");
-            return new SignalInfo(-1, 0, 0, null);
+            return new SignalInfo(-1, 0, new int[]{-1, -1, -1}, null);
         }
 
         double L2_S = calculateL2Norm(data, N, N + TheBrain.W0);
         double L2_N = calculateL2Norm(data, N - TheBrain.W0, N);
 
         if (nwi.similarity[0] > 5 && nwi.similarity[1] > 5 && nwi.similarity[2] > 4)
-            return new SignalInfo(0, L2_S / L2_N, N, nwi.similarity);
+            return new SignalInfo(0, L2_S / L2_N, nwi.maxIndex, nwi.similarity);
         else
-            return new SignalInfo(-2, L2_S / L2_N, N, nwi.similarity);
+            return new SignalInfo(-2, L2_S / L2_N, nwi.maxIndex, nwi.similarity);
     }
 
     // This method is used to calculate the L2-norm
@@ -62,7 +62,7 @@ public class SignalDetector {
         double[] data = Arrays.copyOf(original_data, original_data.length);
 
         double[] topSimilarity = new double[]{Double.NEGATIVE_INFINITY, 0, 0};
-        int maxIndex = -1;
+        int[] maxIndex = new int[]{-1, -1, -1};
 
         for (int i = TheBrain.W0; i <= data.length - reference.length; i++) {
             double crossCorrelation = 0;
@@ -76,7 +76,9 @@ public class SignalDetector {
                 topSimilarity[2] = topSimilarity[1];
                 topSimilarity[1] = topSimilarity[0];
                 topSimilarity[0] = similarity;
-                maxIndex = i;
+                maxIndex[2] = maxIndex[1];
+                maxIndex[1] = maxIndex[0];
+                maxIndex[0] = i;
             }
         }
         return new NoiseWindowInfo(maxIndex, topSimilarity);

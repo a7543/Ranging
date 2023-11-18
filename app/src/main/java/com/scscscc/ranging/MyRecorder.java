@@ -8,6 +8,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -21,11 +22,12 @@ public class MyRecorder {
     private static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
     private static int bufferSize;
-    private static int bufferSample;
+    private static int bufferSampleNum;
     private static boolean isRecording;
     private static AudioRecord recorder;
     private static Thread recordingThread;
     private static Handler handler;
+
     private static void feedback(int channel, String txt) {
         Message msg = new Message();
         msg.what = channel;
@@ -39,7 +41,7 @@ public class MyRecorder {
                 TheBrain.MYCONF_SAMPLERATE,
                 MYCONF_CHANNEL_IN_CONFIG,
                 MYCONF_AUDIO_ENCODING);
-        bufferSample = bufferSize / 2;
+        bufferSampleNum = bufferSize / 2;
     }
 
     public static void startRecording(Context context) {
@@ -124,12 +126,12 @@ public class MyRecorder {
 
     private static void detectSound() {
         byte[] buffer = new byte[bufferSize];
-        double[] x = new double[TheBrain.refSamples.length + bufferSample + TheBrain.W0];
+        double[] x = new double[TheBrain.refSamples.length + bufferSampleNum + TheBrain.W0];
         Arrays.fill(x, 7);
         int totalPos = TheBrain.W0;
 //        FakeRecorder fr = new FakeRecorder();
         int read;
-        SignalDetector.SignalInfo lastsi = new SignalDetector.SignalInfo(0, 0, 0, new double[]{0, 0, 0});
+        SignalDetector.SignalInfo lastsi = new SignalDetector.SignalInfo(0, 0, new int[]{-1, -1, -1}, new double[]{0, 0, 0});
         while (isRecording) {
             read = recorder.read(buffer, 0, bufferSize);
             if (read != AudioRecord.ERROR_INVALID_OPERATION) {
@@ -138,29 +140,30 @@ public class MyRecorder {
                     break;
                 }
                 //test
-                short[] shorts = new short[bufferSample];
+                short[] shorts = new short[bufferSampleNum];
                 // to turn bytes to shorts as either big endian or little endian.
                 ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
 
                 double[] x_tmp = new double[TheBrain.refSamples.length];
-                System.arraycopy(x, bufferSample, x_tmp, 0, TheBrain.refSamples.length);
+                System.arraycopy(x, bufferSampleNum, x_tmp, 0, TheBrain.refSamples.length);
                 System.arraycopy(x_tmp, 0, x, 0, TheBrain.refSamples.length);
 
                 for (int i = 0; i < shorts.length; i++) {
                     x[i + TheBrain.refSamples.length] = 1.0 * shorts[i] / Short.MAX_VALUE;
                 }
-                totalPos += bufferSample;
+                totalPos += bufferSampleNum;
 
                 SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
 
                 if (si.status == 0) {
-                    TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position);
+                    TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position[0]);
                     count += 1;
+                    Log.d("beepinfo", "detectSound: " + bufferSampleNum + " " + count + " |" + si.position[0] + " " + si.position[1] + " " + si.position[2] + "|" + si.similarity[0] + " " + si.similarity[1] + " " + si.similarity[2]);
                 }
-                feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, totalPos + si.position, si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
+                feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, totalPos + si.position[0], si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
 
                 if (si.similarity[0] == lastsi.similarity[0] && si.similarity[1] == lastsi.similarity[1] && lastsi.similarity[2] == si.similarity[2])
-                    feedback(2, "omg " + si.position + " " + lastsi.position + " " + (si.position - lastsi.position));
+                    feedback(2, "omg " + si.position[0] + " " + lastsi.position[0] + " " + (si.position[0] - lastsi.position[0]));
                 lastsi = si;
 
             }
