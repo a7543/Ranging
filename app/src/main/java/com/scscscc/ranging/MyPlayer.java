@@ -72,40 +72,4 @@ public class MyPlayer {
             }
         }
     }
-//
-//    private static void readAudioDataFromFile() {
-//        byte[] data = new byte[bufferSize];
-//        String filename = context.getDataDir() + "/test.dat";
-//
-//        Log.d("scsc", "开始录音地址===== " + filename);
-//        FileInputStream is = null;
-//        try {
-//            is = new FileInputStream(filename);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//
-//        int write;
-//
-//        if (is != null) {
-//            while (isPlaying) {
-//                try {
-//                    write = is.read(data);
-//                    if (write == -1) {
-//                        isPlaying = false;
-//                        break;
-//                    }
-//                    player.write(data, 0, bufferSize);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            try {
-//                is.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 }

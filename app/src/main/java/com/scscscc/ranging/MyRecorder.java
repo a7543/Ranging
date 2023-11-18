@@ -26,23 +26,6 @@ public class MyRecorder {
     private static AudioRecord recorder;
     private static Thread recordingThread;
     private static Handler handler;
-
-    private class FakeRecorder {
-        private int pos = 0;
-        private int goodpos = 10000;
-
-        public void read(short[] buffer) {
-            for (int i = 0; i < buffer.length; i++) {
-                if (pos < goodpos || pos >= goodpos + TheBrain.playSamples.length)
-                    buffer[i] = 1;
-                else
-                    buffer[i] = (short) (TheBrain.playSamples[pos - goodpos] * Short.MAX_VALUE);
-                pos += 1;
-
-            }
-        }
-    }
-
     private static void feedback(int channel, String txt) {
         Message msg = new Message();
         msg.what = channel;
