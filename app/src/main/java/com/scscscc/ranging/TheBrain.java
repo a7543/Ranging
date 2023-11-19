@@ -23,6 +23,7 @@ public class TheBrain {
     public static final int MYCONF_CHIPFREQ1 = 19000;
     public static final int MYCONF_CHIPFREQ2 = 20000;
     public static final int W0 = 0;
+    public static final int W1 = 100;
     public static double[] playSamples;
     public static byte[] playBuffer;
     public static double[] refSamples;

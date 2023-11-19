@@ -156,9 +156,11 @@ public class MyRecorder {
                 SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
 
                 if (si.status == 0) {
-                    TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position[0]);
-                    count += 1;
-                    Log.d("beepinfo", "detectSound: " + bufferSampleNum + " " + count + " |" + si.position[0] + " " + si.position[1] + " " + si.position[2] + "|" + si.similarity[0] + " " + si.similarity[1] + " " + si.similarity[2]);
+                    if (!(bufferSampleNum - si.position[0] < TheBrain.W1)) {
+                        TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position[0]);
+                        count += 1;
+                        Log.d("beepinfo", "detectSound: " + bufferSampleNum + " " + count + " |" + si.position[0] + " " + si.position[1] + " " + si.position[2] + "|" + si.similarity[0] + " " + si.similarity[1] + " " + si.similarity[2]);
+                    }
                 }
                 feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, totalPos + si.position[0], si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
 
