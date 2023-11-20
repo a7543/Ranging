@@ -34,7 +34,7 @@ public class SignalDetector {
         int N = nwi.maxIndex[0];
         if (N == -1) {
             //System.out.println("Detection failed: signal energy is too weak or the noise level is high");
-            return new SignalInfo(-1, 0, new int[]{-1, -1, -1}, null);
+            return new SignalInfo(-1, 0, new int[]{-1, -1, -1}, new double[]{0, 0, 0});
         }
 
         double L2_S = calculateL2Norm(data, N, N + TheBrain.W0);
