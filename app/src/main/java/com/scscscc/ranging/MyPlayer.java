@@ -15,11 +15,10 @@ public class MyPlayer {
 
 
     public static void init() {
-        int minBufferSize = AudioTrack.getMinBufferSize(
+        bufferSize = AudioTrack.getMinBufferSize(
                 TheBrain.MYCONF_SAMPLERATE,
                 MYCONF_CHANNEL_OUT_CONFIG,
                 MYCONF_AUDIO_ENCODING);
-        bufferSize = minBufferSize * 2;
     }
 
     public static void startPlaying() {
