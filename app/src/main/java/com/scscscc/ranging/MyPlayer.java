@@ -19,11 +19,6 @@ public class MyPlayer {
                 TheBrain.MYCONF_SAMPLERATE,
                 MYCONF_CHANNEL_OUT_CONFIG,
                 MYCONF_AUDIO_ENCODING);
-    }
-
-    public static void startPlaying() {
-        if (isPlaying)
-            return;
         player = new AudioTrack(
                 AudioManager.STREAM_MUSIC,
                 TheBrain.MYCONF_SAMPLERATE,
@@ -31,6 +26,11 @@ public class MyPlayer {
                 MYCONF_AUDIO_ENCODING,
                 bufferSize,
                 AudioTrack.MODE_STREAM);
+    }
+
+    public static void startPlaying() {
+        if (isPlaying)
+            return;
 
         player.play();
         isPlaying = true;
@@ -39,8 +39,6 @@ public class MyPlayer {
 
             isPlaying = false;
             player.stop();
-            player.release();
-            player = null;
             playingThread = null;
         }, "AudioRecorder Thread");
 
@@ -58,13 +56,11 @@ public class MyPlayer {
     }
 
     private static void playChirp() {
-        byte[] buffer = new byte[bufferSize];
         int bufferPos = 0;
         while (isPlaying && bufferPos < TheBrain.playBuffer.length) {
             try {
                 int playLength = Math.min(bufferSize, TheBrain.playBuffer.length - bufferPos);
-                System.arraycopy(TheBrain.playBuffer, bufferPos, buffer, 0, playLength);
-                player.write(buffer, 0, playLength);
+                player.write(TheBrain.playBuffer, bufferPos, playLength);
                 bufferPos += playLength;
             } catch (Exception e) {
                 e.printStackTrace();
