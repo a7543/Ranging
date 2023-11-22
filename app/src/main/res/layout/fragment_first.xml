@@ -116,10 +116,32 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="brain enabled"
-            app:layout_constraintBottom_toTopOf="@id/textview_out0"
+            app:layout_constraintBottom_toTopOf="@id/editTextText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button_reset" />
+
+        <EditText
+            android:id="@+id/editTextText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Treshold"
+            app:layout_constraintBottom_toTopOf="@id/button_confirm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switch1" />
+
+        <Button
+            android:id="@+id/button_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            app:layout_constraintBottom_toTopOf="@id/textview_out0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editTextText" />
 
         <TextView
             android:id="@+id/textview_out0"
@@ -130,7 +152,7 @@
             app:layout_constraintBottom_toTopOf="@id/textview_out1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/switch1" />
+            app:layout_constraintTop_toBottomOf="@id/button_confirm" />
 
         <TextView
             android:id="@+id/textview_out1"

@@ -3,6 +3,7 @@ package com.scscscc.ranging;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.android.material.internal.TextWatcherAdapter;
 import com.scscscc.ranging.databinding.FragmentFirstBinding;
 
 public class FirstFragment extends Fragment {
@@ -86,6 +88,15 @@ public class FirstFragment extends Fragment {
             TheBrain.enable = isChecked;
         });
         binding.buttonReset.setOnClickListener(view14 -> TheBrain.reset());
+        binding.buttonConfirm.setOnClickListener(view1 -> {
+            String thresholdText = binding.editTextText.getText().toString();
+            try {
+                TheBrain.simThreshold = Double.parseDouble(thresholdText);
+                binding.textviewOut0.setText("Settings updated");
+            } catch (NumberFormatException e) {
+                binding.textviewOut0.setText("Invalid threshold");
+            }
+        });
     }
 
     @Override

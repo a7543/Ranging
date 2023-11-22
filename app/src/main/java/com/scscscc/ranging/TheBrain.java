@@ -9,15 +9,15 @@ import java.util.Locale;
 
 public class TheBrain {
 
-    public static int DATA_A0 = 0;
-    public static int DATA_DELTA_A = 1;
-    public static int DATA_DELTA_B = 2;
-    public static int DATA_A1 = 3;
-    public static int DATA_A3 = 4;
-    public static int DATA_B1 = 5;
-    public static int DATA_B3 = 6;
-    public static int DATA_DELTA = 9;
-    public static int DATA_LISTEN = 10;
+    public static final int DATA_A0 = 0;
+    public static final int DATA_DELTA_A = 1;
+    public static final int DATA_DELTA_B = 2;
+    public static final int DATA_A1 = 3;
+    public static final int DATA_A3 = 4;
+    public static final int DATA_B1 = 5;
+    public static final int DATA_B3 = 6;
+    public static final int DATA_DELTA = 9;
+    public static final int DATA_LISTEN = 10;
 
     public static final int MYCONF_SAMPLERATE = 44100;
     public static final int MYCONF_CHIPFREQ1 = 19000;
@@ -33,6 +33,7 @@ public class TheBrain {
     private static long startTime;
 
     public static boolean enable = false;
+    public static double simThreshold = 5;
 
     private static void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
         int warmSampleNum = warmTimeInMillis * MYCONF_SAMPLERATE / 1000;
