@@ -12,6 +12,15 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+
+        externalNativeBuild {
+            cmake {
+                // 其他配置...
+
+                // 添加这行来包括STL支持
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
     }
 
     buildTypes {

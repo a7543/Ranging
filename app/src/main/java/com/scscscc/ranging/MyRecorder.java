@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class MyRecorder {
+    static {
+        System.loadLibrary("native-lib");
+    }
     private static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_MONO;
     private static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
@@ -153,7 +156,8 @@ public class MyRecorder {
                 }
                 totalPos += bufferSampleNum;
 
-                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
+//                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
+                SignalDetector.SignalInfo si = cDetectSignal(x, TheBrain.refSamples, TheBrain.W0, TheBrain.simThreshold);
 
                 if (si.status == 0) {
                     if (!(bufferSampleNum - si.position[0] < TheBrain.W1)) {
@@ -171,6 +175,17 @@ public class MyRecorder {
             }
         }
     }
+
+
+    private static native void cDetectSignalRaw(double[] data, double[] reference, int TB_W0, double TB_simThreshold, int[] ret1, double[] ret2);
+
+    private static SignalDetector.SignalInfo cDetectSignal(double[] data, double[] reference, int TB_W0, double TB_simThreshold) {
+        int[] ret1 = new int[4];
+        double[] ret2 = new double[4];
+        cDetectSignalRaw(data, reference, TB_W0, TB_simThreshold, ret1, ret2);
+        return new SignalDetector.SignalInfo(ret1[0], ret2[0], Arrays.copyOfRange(ret1, 1, 4), Arrays.copyOfRange(ret2, 1, 4));
+    }
+
 }
 
 //    private void detectSound() {
