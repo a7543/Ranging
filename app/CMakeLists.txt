@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.4.1)
 SET (CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # Specifies a library name, specifies whether the library is STATIC or
 # SHARED, and provides relative paths to the source code. You can

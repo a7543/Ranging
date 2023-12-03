@@ -1,6 +1,9 @@
 package com.scscscc.ranging;
 
+import android.util.Log;
+
 import java.util.Arrays;
+import java.util.Random;
 
 public class SignalDetector {
 
@@ -58,8 +61,8 @@ public class SignalDetector {
     // This method is used to get the noise window.
     // In this code, it is assumed that the noise window is found when the cross-correlation value is maximum.
     // Actual check length = data.length - reference.length - W0 + 1
-    private static NoiseWindowInfo getNoiseWindow(double[] original_data, double[] reference) {
-        double[] data = Arrays.copyOf(original_data, original_data.length);
+    private static NoiseWindowInfo getNoiseWindow(double[] data, double[] reference) {
+
 
         double[] topSimilarity = new double[]{Double.NEGATIVE_INFINITY, 0, 0};
         int[] maxIndex = new int[]{-1, -1, -1};
@@ -81,6 +84,8 @@ public class SignalDetector {
                 maxIndex[0] = i;
             }
         }
+
+
         return new NoiseWindowInfo(maxIndex, topSimilarity);
     }
 }

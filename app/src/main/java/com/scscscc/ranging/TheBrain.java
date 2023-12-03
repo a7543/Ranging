@@ -172,7 +172,7 @@ public class TheBrain {
     }
 
     public static void init(Handler p_handler) {
-        genChirp(100, 19000, 5, 200, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
+        genChirp(100, 19000, 5, 150, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
         handler = p_handler;
         clear();
     }
