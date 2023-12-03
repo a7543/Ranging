@@ -29,7 +29,9 @@ public class MyPlayer {
                         .setChannelMask(TheBrain.MYCONF_CHANNEL_OUT_CONFIG)
                         .build())
                 .setBufferSizeInBytes(bufferSize)
-                .setTransferMode(AudioTrack.MODE_STREAM);
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
+
 
         player = builder.build();
     }
