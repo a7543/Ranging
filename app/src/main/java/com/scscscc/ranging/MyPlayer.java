@@ -1,6 +1,7 @@
 package com.scscscc.ranging;
 
-import android.media.AudioManager;
+import android.media.AudioAttributes;
+import android.media.AudioFormat;
 import android.media.AudioTrack;
 
 public class MyPlayer {
@@ -17,13 +18,20 @@ public class MyPlayer {
                 TheBrain.MYCONF_CHANNEL_OUT_CONFIG,
                 TheBrain.MYCONF_AUDIO_ENCODING);
 
-        player = new AudioTrack(
-                AudioManager.STREAM_MUSIC,
-                TheBrain.sampleRate,
-                TheBrain.MYCONF_CHANNEL_OUT_CONFIG,
-                TheBrain.MYCONF_AUDIO_ENCODING,
-                bufferSize,
-                AudioTrack.MODE_STREAM);
+        AudioTrack.Builder builder = new AudioTrack.Builder();
+        builder.setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                .setAudioFormat(new AudioFormat.Builder()
+                        .setEncoding(TheBrain.MYCONF_AUDIO_ENCODING)
+                        .setSampleRate(TheBrain.sampleRate)
+                        .setChannelMask(TheBrain.MYCONF_CHANNEL_OUT_CONFIG)
+                        .build())
+                .setBufferSizeInBytes(bufferSize)
+                .setTransferMode(AudioTrack.MODE_STREAM);
+
+        player = builder.build();
     }
 
     public static void startPlaying() {

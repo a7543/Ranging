@@ -1,10 +1,5 @@
 package com.scscscc.ranging;
 
-import android.util.Log;
-
-import java.util.Arrays;
-import java.util.Random;
-
 public class SignalDetector {
 
     private static class NoiseWindowInfo {

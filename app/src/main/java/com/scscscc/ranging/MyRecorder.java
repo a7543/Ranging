@@ -54,11 +54,9 @@ public class MyRecorder {
                 TheBrain.sampleRate, TheBrain.MYCONF_CHANNEL_IN_CONFIG, TheBrain.MYCONF_AUDIO_ENCODING, bufferSize);
         recorder.startRecording();
         isRecording = true;
-        recordingThread = new Thread(() -> {
-//                writeAudioDataToFile();
-//                soundtest();
-            detectSound();
-        }, "AudioRecorder Thread");
+        //                writeAudioDataToFile();
+        //                soundtest();
+        recordingThread = new Thread(MyRecorder::detectSound, "AudioRecorder Thread");
         recordingThread.start();
     }
 

@@ -31,7 +31,7 @@ public class TheBrain {
     public static double[] refSamples;
     private static final long[] data = new long[7];
     private static Handler handler;
-    private static double soundSpeed = 340;
+    private static final double soundSpeed = 340;
     private static long startTime;
 
     public static boolean enable = false;
@@ -154,11 +154,10 @@ public class TheBrain {
         }
 
         if (data[DATA_A1] != -1 && data[DATA_A3] != -1 && data[DATA_DELTA_B] != -1) {
-            double c = soundSpeed;
             double ta3 = 1.0 * data[DATA_A3] / sampleRate;
             double ta1 = 1.0 * data[DATA_A1] / sampleRate;
             double tb3_tb1 = 1.0 * data[DATA_DELTA_B] / sampleRate;
-            double dist = c / 2 * ((ta3 - ta1) - (tb3_tb1));
+            double dist = soundSpeed / 2 * ((ta3 - ta1) - (tb3_tb1));
             long endTime = System.nanoTime();
             double time = 1.0 * (endTime - startTime) / 1000000;
             feedback(4, String.format(Locale.CHINA, "dist: %.2f\ntime: %.2fms", dist, time), false);
@@ -166,11 +165,10 @@ public class TheBrain {
             clear();
             //myPlayer.beep(true);
         } else if (data[DATA_B1] != -1 && data[DATA_B3] != -1 && data[DATA_DELTA_A] != -1) {
-            double c = soundSpeed;
             double tb3 = 1.0 * data[DATA_B3] / sampleRate;
             double tb1 = 1.0 * data[DATA_B1] / sampleRate;
             double ta3_ta1 = 1.0 * data[DATA_DELTA_A] / sampleRate;
-            double dist = c / 2 * ((ta3_ta1) - (tb3 - tb1));
+            double dist = soundSpeed / 2 * ((ta3_ta1) - (tb3 - tb1));
             feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist), false);
             feedback(5, "update dist = " + dist, true);
             clear();
