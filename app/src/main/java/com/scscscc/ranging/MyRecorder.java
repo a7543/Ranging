@@ -3,7 +3,6 @@ package com.scscscc.ranging;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
@@ -21,8 +20,6 @@ public class MyRecorder {
     static {
         System.loadLibrary("native-lib");
     }
-    private static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_MONO;
-    private static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
     private static int bufferSize;
     private static int bufferSampleNum;
@@ -42,8 +39,8 @@ public class MyRecorder {
         handler = p_handler;
         bufferSize = AudioRecord.getMinBufferSize(
                 TheBrain.sampleRate,
-                MYCONF_CHANNEL_IN_CONFIG,
-                MYCONF_AUDIO_ENCODING);
+                TheBrain.MYCONF_CHANNEL_IN_CONFIG,
+                TheBrain.MYCONF_AUDIO_ENCODING);
         bufferSampleNum = bufferSize / 2;
     }
 
@@ -54,7 +51,7 @@ public class MyRecorder {
         }
 //        soundtest();
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                TheBrain.sampleRate, MYCONF_CHANNEL_IN_CONFIG, MYCONF_AUDIO_ENCODING, bufferSize);
+                TheBrain.sampleRate, TheBrain.MYCONF_CHANNEL_IN_CONFIG, TheBrain.MYCONF_AUDIO_ENCODING, bufferSize);
         recorder.startRecording();
         isRecording = true;
         recordingThread = new Thread(() -> {
@@ -156,8 +153,8 @@ public class MyRecorder {
                 }
                 totalPos += bufferSampleNum;
 
-//                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
-                SignalDetector.SignalInfo si = cDetectSignal(x, TheBrain.refSamples, TheBrain.W0, TheBrain.simThreshold);
+                SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
+//                SignalDetector.SignalInfo si = cDetectSignal(x, TheBrain.refSamples, TheBrain.W0, TheBrain.simThreshold);
 
                 if (si.status == 0) {
                     if (!(bufferSampleNum - si.position[0] < TheBrain.W1)) {

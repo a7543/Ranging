@@ -1,12 +1,9 @@
 package com.scscscc.ranging;
 
-import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 
 public class MyPlayer {
-    private static final int MYCONF_CHANNEL_OUT_CONFIG = AudioFormat.CHANNEL_OUT_MONO;
-    private static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
     private static int bufferSize;
     private static boolean isPlaying;
@@ -17,13 +14,14 @@ public class MyPlayer {
     public static void init() {
         bufferSize = AudioTrack.getMinBufferSize(
                 TheBrain.sampleRate,
-                MYCONF_CHANNEL_OUT_CONFIG,
-                MYCONF_AUDIO_ENCODING);
+                TheBrain.MYCONF_CHANNEL_OUT_CONFIG,
+                TheBrain.MYCONF_AUDIO_ENCODING);
+
         player = new AudioTrack(
                 AudioManager.STREAM_MUSIC,
                 TheBrain.sampleRate,
-                MYCONF_CHANNEL_OUT_CONFIG,
-                MYCONF_AUDIO_ENCODING,
+                TheBrain.MYCONF_CHANNEL_OUT_CONFIG,
+                TheBrain.MYCONF_AUDIO_ENCODING,
                 bufferSize,
                 AudioTrack.MODE_STREAM);
     }

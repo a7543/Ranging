@@ -2,6 +2,7 @@ package com.scscscc.ranging;
 
 
 import android.content.Context;
+import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +36,10 @@ public class TheBrain {
 
     public static boolean enable = false;
     public static double simThreshold = 5;
+    public static final int MYCONF_CHANNEL_OUT_CONFIG = AudioFormat.CHANNEL_OUT_MONO;
+
+    public static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_MONO;
+    public static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
     private static void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
         int warmSampleNum = warmTimeInMillis * sampleRate / 1000;
