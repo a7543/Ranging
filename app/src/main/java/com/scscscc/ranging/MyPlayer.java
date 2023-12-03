@@ -16,12 +16,12 @@ public class MyPlayer {
 
     public static void init() {
         bufferSize = AudioTrack.getMinBufferSize(
-                TheBrain.MYCONF_SAMPLERATE,
+                TheBrain.sampleRate,
                 MYCONF_CHANNEL_OUT_CONFIG,
                 MYCONF_AUDIO_ENCODING);
         player = new AudioTrack(
                 AudioManager.STREAM_MUSIC,
-                TheBrain.MYCONF_SAMPLERATE,
+                TheBrain.sampleRate,
                 MYCONF_CHANNEL_OUT_CONFIG,
                 MYCONF_AUDIO_ENCODING,
                 bufferSize,

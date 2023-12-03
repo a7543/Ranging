@@ -41,7 +41,7 @@ public class MyRecorder {
     public static void init(Handler p_handler) {
         handler = p_handler;
         bufferSize = AudioRecord.getMinBufferSize(
-                TheBrain.MYCONF_SAMPLERATE,
+                TheBrain.sampleRate,
                 MYCONF_CHANNEL_IN_CONFIG,
                 MYCONF_AUDIO_ENCODING);
         bufferSampleNum = bufferSize / 2;
@@ -54,7 +54,7 @@ public class MyRecorder {
         }
 //        soundtest();
         recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                TheBrain.MYCONF_SAMPLERATE, MYCONF_CHANNEL_IN_CONFIG, MYCONF_AUDIO_ENCODING, bufferSize);
+                TheBrain.sampleRate, MYCONF_CHANNEL_IN_CONFIG, MYCONF_AUDIO_ENCODING, bufferSize);
         recorder.startRecording();
         isRecording = true;
         recordingThread = new Thread(() -> {

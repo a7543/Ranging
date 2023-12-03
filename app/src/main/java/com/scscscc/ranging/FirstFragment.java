@@ -46,7 +46,8 @@ public class FirstFragment extends Fragment {
                 }
         );
         binding = FragmentFirstBinding.inflate(inflater, container, false);
-        TheBrain.init(handler);
+        TheBrain.init(handler, getContext());
+        binding.textviewOut0.setText("sample rate = " + TheBrain.sampleRate);
         MyRecorder.init(handler);
         MyPlayer.init();
         return binding.getRoot();

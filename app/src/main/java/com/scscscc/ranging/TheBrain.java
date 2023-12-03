@@ -1,6 +1,8 @@
 package com.scscscc.ranging;
 
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
 
@@ -18,8 +20,7 @@ public class TheBrain {
     public static final int DATA_B3 = 6;
     public static final int DATA_DELTA = 9;
     public static final int DATA_LISTEN = 10;
-
-    public static final int MYCONF_SAMPLERATE = 44100;
+    public static int sampleRate = 44100;
     public static final int MYCONF_CHIPFREQ1 = 19000;
     public static final int MYCONF_CHIPFREQ2 = 20000;
     public static final int W0 = 0;
@@ -36,13 +37,13 @@ public class TheBrain {
     public static double simThreshold = 5;
 
     private static void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
-        int warmSampleNum = warmTimeInMillis * MYCONF_SAMPLERATE / 1000;
-        int chirpSampleNum = chirpTimeInMillis * MYCONF_SAMPLERATE / 1000;
-        int waitSampleNum = waitTimeInMillis * MYCONF_SAMPLERATE / 1000;
+        int warmSampleNum = warmTimeInMillis * sampleRate / 1000;
+        int chirpSampleNum = chirpTimeInMillis * sampleRate / 1000;
+        int waitSampleNum = waitTimeInMillis * sampleRate / 1000;
 
         double[] warmBuffer = new double[warmSampleNum];
         for (int sampleIdx = 0; sampleIdx < warmSampleNum; sampleIdx++) {
-            double t = 1.0 * sampleIdx / MYCONF_SAMPLERATE;
+            double t = 1.0 * sampleIdx / sampleRate;
             double d = Math.sin(2 * Math.PI * warmFreq * t);
             warmBuffer[sampleIdx] = d;
         }
@@ -50,7 +51,7 @@ public class TheBrain {
         double[] chirpBuffer = new double[chirpSampleNum];
         float freqPerSample = (freq2 - freq1) / chirpSampleNum;
         for (int sampleIdx = 0; sampleIdx < chirpSampleNum; sampleIdx++) {
-            double t = 1.0 * sampleIdx / MYCONF_SAMPLERATE;
+            double t = 1.0 * sampleIdx / sampleRate;
             double d = Math.sin(2 * Math.PI * (freq1 + freq1 + sampleIdx * freqPerSample) * t / 2);
             chirpBuffer[sampleIdx] = d;
         }
@@ -149,9 +150,9 @@ public class TheBrain {
 
         if (data[DATA_A1] != -1 && data[DATA_A3] != -1 && data[DATA_DELTA_B] != -1) {
             double c = soundSpeed;
-            double ta3 = 1.0 * data[DATA_A3] / MYCONF_SAMPLERATE;
-            double ta1 = 1.0 * data[DATA_A1] / MYCONF_SAMPLERATE;
-            double tb3_tb1 = 1.0 * data[DATA_DELTA_B] / MYCONF_SAMPLERATE;
+            double ta3 = 1.0 * data[DATA_A3] / sampleRate;
+            double ta1 = 1.0 * data[DATA_A1] / sampleRate;
+            double tb3_tb1 = 1.0 * data[DATA_DELTA_B] / sampleRate;
             double dist = c / 2 * ((ta3 - ta1) - (tb3_tb1));
             long endTime = System.nanoTime();
             double time = 1.0 * (endTime - startTime) / 1000000;
@@ -161,9 +162,9 @@ public class TheBrain {
             //myPlayer.beep(true);
         } else if (data[DATA_B1] != -1 && data[DATA_B3] != -1 && data[DATA_DELTA_A] != -1) {
             double c = soundSpeed;
-            double tb3 = 1.0 * data[DATA_B3] / MYCONF_SAMPLERATE;
-            double tb1 = 1.0 * data[DATA_B1] / MYCONF_SAMPLERATE;
-            double ta3_ta1 = 1.0 * data[DATA_DELTA_A] / MYCONF_SAMPLERATE;
+            double tb3 = 1.0 * data[DATA_B3] / sampleRate;
+            double tb1 = 1.0 * data[DATA_B1] / sampleRate;
+            double ta3_ta1 = 1.0 * data[DATA_DELTA_A] / sampleRate;
             double dist = c / 2 * ((ta3_ta1) - (tb3 - tb1));
             feedback(4, String.format(Locale.CHINA, "dist: %.2f", dist), false);
             feedback(5, "update dist = " + dist, true);
@@ -171,9 +172,14 @@ public class TheBrain {
         }
     }
 
-    public static void init(Handler p_handler) {
+    public static void init(Handler p_handler, Context context) {
         genChirp(100, 19000, 5, 150, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
         handler = p_handler;
+        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        String sampleRateStr = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+        int bestSampleRate = Integer.parseInt(sampleRateStr);
+        if (bestSampleRate != 0)
+            sampleRate = bestSampleRate;
         clear();
     }
 }
