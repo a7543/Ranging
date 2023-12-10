@@ -2,8 +2,6 @@ package com.scscscc.ranging;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.google.android.material.internal.TextWatcherAdapter;
 import com.scscscc.ranging.databinding.FragmentFirstBinding;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class FirstFragment extends Fragment {
 
@@ -93,11 +94,39 @@ public class FirstFragment extends Fragment {
             String thresholdText = binding.editTextText.getText().toString();
             try {
                 TheBrain.simThreshold = Double.parseDouble(thresholdText);
+                File file = new File(getContext().getFilesDir(), "threshold.txt");
+                if (!file.exists())
+                    file.createNewFile();
+
+                FileOutputStream fos = new FileOutputStream(file);
+                String configString = String.valueOf(TheBrain.simThreshold);
+                fos.write(configString.getBytes());
+                fos.close();
                 binding.textviewOut0.setText("Settings updated");
             } catch (NumberFormatException e) {
                 binding.textviewOut0.setText("Invalid threshold");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
+        try {
+            File file = new File(getContext().getFilesDir(), "threshold.txt");
+            if (file.exists()) {
+                file.createNewFile();
+                byte[] buffer = new byte[1024];
+                int read;
+                read = getContext().openFileInput("threshold.txt").read(buffer);
+                if (read > 0) {
+                    String configString = new String(buffer, 0, read);
+                    TheBrain.simThreshold = Double.parseDouble(configString);
+                    binding.editTextText.setText(configString);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     @Override
