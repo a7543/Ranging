@@ -116,7 +116,20 @@ public class TheBrain {
             clear();
             data[DATA_A0] = value;
             startTime = System.nanoTime();
-            feedback(5, "A0: " + value, true);
+            feedback(5, "A0: " + value, false);
+            Thread watcher = new Thread(() -> {
+                try {
+                    long tag = data[DATA_A0];
+                    Thread.sleep(1000);
+                    if (data[DATA_A0] == tag) {
+                        feedback(4, "dist: failed", false);
+                        clear();
+                    }
+                } catch (InterruptedException e) {
+                    feedback(5, "sleep interrupted", true);
+                }
+            });
+            watcher.start();
             return;
         } else if (type == DATA_LISTEN) {
             if (data[DATA_A0] != -1) { // A
@@ -133,12 +146,20 @@ public class TheBrain {
             } else { //B
                 if (data[DATA_B1] == -1) {
                     data[DATA_B1] = value;
+                    Thread watcher = new Thread(() -> {
+                        try {
+                            long tag = data[DATA_B1];
+                            Thread.sleep(1000);
+                            if (data[DATA_B1] == tag) {
+                                feedback(4, "dist: failed", false);
+                                clear();
+                            }
+                        } catch (InterruptedException e) {
+                            feedback(5, "sleep interrupted", true);
+                        }
+                    });
+                    watcher.start();
                     MyPlayer.beep(false);
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        feedback(5, "sleep interrupted", true);
-                    }
                     feedback(5, "B1: " + value, true);
                 } else if (data[DATA_B3] == -1) {
                     data[DATA_B3] = value;
@@ -148,7 +169,6 @@ public class TheBrain {
                     BluetoothService.sendMessage(delta);
                 }
             }
-            return;
         } else if (type == DATA_DELTA) {
             if (data[DATA_A0] != -1) {
                 data[DATA_DELTA_B] = value;
@@ -182,7 +202,7 @@ public class TheBrain {
     }
 
     public static void init(Handler p_handler, Context context) {
-        genChirp(0, 100, 19000, 5, 150, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
+        genChirp(50, 0, 19000, 0, 50, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
         handler = p_handler;
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         String sampleRateStr = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
