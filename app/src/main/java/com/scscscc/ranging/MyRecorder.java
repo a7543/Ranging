@@ -121,6 +121,7 @@ public class MyRecorder {
 //    }
 
     private static int count = 0;
+    private static int deafTime = 0;
 
     private static void detectSound() {
         byte[] buffer = new byte[bufferSize];
@@ -153,13 +154,14 @@ public class MyRecorder {
 
                 SignalDetector.SignalInfo si = SignalDetector.detectSignal(x, TheBrain.refSamples);
 //                SignalDetector.SignalInfo si = cDetectSignal(x, TheBrain.refSamples, TheBrain.W0, TheBrain.simThreshold);
+                if (deafTime > 0)
+                    deafTime--;
 
-                if (si.status == 0) {
-                    if (!(bufferSampleNum - si.position[0] < TheBrain.W1)) {
-                        TheBrain.report(TheBrain.DATA_LISTEN, totalPos + si.position[0]);
-                        count += 1;
-                        Log.d("beepinfo", "detectSound: " + bufferSampleNum + " " + count + " |" + si.position[0] + " " + si.position[1] + " " + si.position[2] + "|" + si.similarity[0] + " " + si.similarity[1] + " " + si.similarity[2]);
-                    }
+                if (deafTime == 0 && lastsi.status == 0 && lastsi.similarity[0] > si.similarity[0]) {
+                    TheBrain.report(TheBrain.DATA_LISTEN, totalPos + lastsi.position[0]);
+                    count += 1;
+                    deafTime = 5;
+                    Log.d("beepinfo", "detectSound: " + bufferSampleNum + " " + count + " |" + lastsi.position[0] + " " + lastsi.position[1] + " " + lastsi.position[2] + "|" + lastsi.similarity[0] + " " + lastsi.similarity[1] + " " + lastsi.similarity[2] + "|" + lastsi.confidence);
                 }
                 feedback(1, String.format(Locale.CHINA, "%d: %d %.2f,suim\n %.2f %.2f %.2f\ncount = %d\n", si.status, totalPos + si.position[0], si.confidence, si.similarity[0], si.similarity[1], si.similarity[2], count));
 
