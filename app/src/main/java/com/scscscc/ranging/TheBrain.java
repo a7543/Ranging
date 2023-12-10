@@ -41,10 +41,14 @@ public class TheBrain {
     public static final int MYCONF_CHANNEL_IN_CONFIG = AudioFormat.CHANNEL_IN_MONO;
     public static final int MYCONF_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
-    private static void genChirp(int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
+    private static void genChirp(int blankTimeInMillis, int warmTimeInMillis, float warmFreq, int waitTimeInMillis, int chirpTimeInMillis, float freq1, float freq2) {
+        int blankSampleNum = blankTimeInMillis * sampleRate / 1000;
         int warmSampleNum = warmTimeInMillis * sampleRate / 1000;
         int chirpSampleNum = chirpTimeInMillis * sampleRate / 1000;
         int waitSampleNum = waitTimeInMillis * sampleRate / 1000;
+
+        double[] blankBuffer = new double[blankSampleNum];
+        Arrays.fill(blankBuffer, 0);
 
         double[] warmBuffer = new double[warmSampleNum];
         for (int sampleIdx = 0; sampleIdx < warmSampleNum; sampleIdx++) {
@@ -64,9 +68,11 @@ public class TheBrain {
         refSamples = new double[chirpSampleNum];
         System.arraycopy(chirpBuffer, 0, refSamples, 0, chirpSampleNum);
 
-        playSamples = new double[warmSampleNum + W0 + waitSampleNum + chirpSampleNum];
-        System.arraycopy(warmBuffer, 0, playSamples, 0, warmSampleNum);
-        System.arraycopy(chirpBuffer, 0, playSamples, warmSampleNum + W0 + waitSampleNum, chirpSampleNum);
+        playSamples = new double[blankSampleNum + warmSampleNum + W0 + waitSampleNum + chirpSampleNum];
+
+        System.arraycopy(blankBuffer, 0, playSamples, 0, blankSampleNum);
+        System.arraycopy(warmBuffer, 0, playSamples, blankSampleNum, warmSampleNum);
+        System.arraycopy(chirpBuffer, 0, playSamples, blankSampleNum + warmSampleNum + W0 + waitSampleNum, chirpSampleNum);
 
         playBuffer = new byte[playSamples.length * 2];
         for (int i = 0; i < playSamples.length; i++) {
@@ -176,7 +182,7 @@ public class TheBrain {
     }
 
     public static void init(Handler p_handler, Context context) {
-        genChirp(100, 19000, 5, 150, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
+        genChirp(0, 100, 19000, 5, 150, MYCONF_CHIPFREQ1, MYCONF_CHIPFREQ2);
         handler = p_handler;
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         String sampleRateStr = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
